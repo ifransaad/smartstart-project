@@ -10,6 +10,4 @@ const firebaseConfig = {
   measurementId: "G-244Q2V5NWW"
 };
 
-initializeApp(firebaseConfig);
-
-export default true;
+export const app = initializeApp(firebaseConfig);

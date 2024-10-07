@@ -58,7 +58,7 @@ app.use('/api/files', fileRoutes);
 const storage = multer.memoryStorage();
 const upload = multer({ storage });
 app.post('/fileUpload',upload.single("file"),fileUpload)
-app.get('/fileDownload',fileDownload)
+app.get('/fileDownload/:fileID',fileDownload)
 
 
 // Start the server

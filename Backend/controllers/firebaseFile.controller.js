@@ -1,11 +1,9 @@
 import File from '../models/files.model.js';
 import Assignment from '../models/assignment.models.js';
-import firebaseConfig from '../utils/firebaseConfig.js';
+import {app} from '../utils/firebaseConfig.js';
 import { getStorage, ref, getDownloadURL,uploadBytesResumable} from "firebase/storage";
 
-
-
-const storage = getStorage();
+const storage = getStorage(app);
 
 export const fileUpload = async (req, res) => {
     try {
@@ -16,16 +14,15 @@ export const fileUpload = async (req, res) => {
             contentType: req.file.mimetype,
         };
 
-        const snapshot = await uploadBytesResumable(storageRef, req.file.buffer, metadata);
+        const uploadTask = await uploadBytesResumable(storageRef, req.file.buffer, metadata);
 
-        const donwloadURL= await getDownloadURL(snapshot.ref);
+        const donwloadURL= await getDownloadURL(uploadTask.ref);
 
         // Save the file data to MongoDB
         const newFile = new File({
             orderID: orderID, // Use orderID as token
             fileName: req.file.originalname,
             fileType: req.file.mimetype,
-            fileData: req.file.buffer,
             fileUrl: donwloadURL
         });
         
@@ -39,6 +36,7 @@ export const fileUpload = async (req, res) => {
 
         res.status(201).json({ message: "File uploaded successfully", fileId: newFile._id });
     } catch (error) {
+      console.log(error.message)
         return res.status(400).send(error.message)
     }
 }
@@ -51,8 +49,7 @@ export const fileDownload = async (req, res) => {
         if (!file) {
           return res.status(404).json({ message: 'File not found' });
         }
-        res.setHeader('Content-Disposition', `attachment; filename=${file.fileName}`);
-        res.send({ url: file.fileUrl });
+        res.redirect(file.fileUrl);
 
       } catch (error) {
         res.status(500).json({ message: 'Error downloading file', error: error.message });

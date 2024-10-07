@@ -10,7 +10,7 @@ const useUploadFiles = () => {
             // if (token) {
             //     url = `/share/upload?token=${token}`;  // Unrestricted route if token is available
             // }
-            const res = await axios.post(`${process.env.REACT_APP_LOCALHOST}/api/files/upload`, formData, {
+            const res = await axios.post(`${process.env.REACT_APP_LOCALHOST}/fileUpload`, formData, {
               headers: { 'Content-Type': 'multipart/form-data' },
               maxContentLength: Infinity,
               maxBodyLength: Infinity,
@@ -46,7 +46,7 @@ const useUploadFiles = () => {
     const downloadFiles = async(file, download) => {        
         try {
           const response = await axios.get(
-            `${process.env.REACT_APP_LOCALHOST}/api/files/download/${file._id}?download=${download}`,
+            `${process.env.REACT_APP_LOCALHOST}/fileDownload/${file._id}?download=${download}`,
             {
               responseType: "blob", // Important to get the file as a blob
             }

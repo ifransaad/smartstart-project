@@ -9,18 +9,14 @@ const fileSchema = new mongoose.Schema({
   fileType: { 
     type: String, 
     required: true },
-    
-  fileData: { 
-    type: Buffer, 
-    required: true },  // To store binary data
-    
+
   orderID:{
     type: String,
     required: true},
     
   fileUrl: { 
-    type: String }
-    //required: true },
+    type: String,
+    required: true }
    
 });
 
