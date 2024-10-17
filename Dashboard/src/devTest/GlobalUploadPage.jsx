@@ -40,22 +40,22 @@ const customScrollbarStyles = {
 
 const GlobalUploadPage = () => {
   const theme = useTheme();
-  const [orderID, setOrderID] = useState('');
+  const [orderID, setOrderID] = useState("");
   const [files, setFiles] = useState([]);
   const [existingFiles, setExistingFiles] = useState([]);
   const [token, setToken] = useState(null);
   const [shareLink, setShareLink] = useState("");
   const [uploadStatus, setUploadStatus] = useState({});
   const { uploadFiles, downloadFiles } = useUploadFiles();
-//   const { fileList } = useFetchFileList(orderID);
+  //   const { fileList } = useFetchFileList(orderID);
 
   const { control } = useForm({});
 
-//   useEffect(() => {
-//     if (fileList) {
-//       setExistingFiles(fileList);
-//     }
-//   }, [fileList]);
+  //   useEffect(() => {
+  //     if (fileList) {
+  //       setExistingFiles(fileList);
+  //     }
+  //   }, [fileList]);
 
   const location = useLocation();
 
@@ -66,7 +66,6 @@ const GlobalUploadPage = () => {
   }, [location]);
 
   console.log(orderID);
-  
 
   const handleFileChange = (event) => {
     const selectedFiles = Array.from(event.target.files);
@@ -112,23 +111,23 @@ const GlobalUploadPage = () => {
     downloadFiles(file, true);
   };
 
-//   const handleView = async (file) => {
-//     downloadFiles(file, false);
-//   };
+  //   const handleView = async (file) => {
+  //     downloadFiles(file, false);
+  //   };
 
   const handleCloseModal = () => {
     // setOpen(false);
   };
 
-//   const handleSharableLink = async () => {
-//     try {
-//       const response = await handleGenerateShareableLink(orderID);
-//       setShareLink(response.shareableLink);
-//       console.log(response);
-//     } catch (error) {
-//       console.log(error.message);
-//     }
-//   };
+  //   const handleSharableLink = async () => {
+  //     try {
+  //       const response = await handleGenerateShareableLink(orderID);
+  //       setShareLink(response.shareableLink);
+  //       console.log(response);
+  //     } catch (error) {
+  //       console.log(error.message);
+  //     }
+  //   };
 
   const handleLinkCopy = () => {
     if (shareLink) {
@@ -144,57 +143,61 @@ const GlobalUploadPage = () => {
   };
 
   return (
-      <Container maxWidth="md" sx={{ marginTop: "50px" }}>
-        <Card
-          raised
+    <Container maxWidth="md" sx={{ marginTop: "50px" }}>
+      <Card
+        raised
+        sx={{
+          maxHeight: "90vh",
+          overflowY: "auto",
+          padding: "20px",
+          borderRadius: "15px",
+          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.2)",
+          position: "relative",
+          backgroundColor: theme.palette.background.paper,
+          ...customScrollbarStyles,
+        }}
+      >
+        <IconButton
           sx={{
-            maxHeight: "90vh",
-            overflowY: "auto",
-            padding: "20px",
-            borderRadius: "15px",
-            boxShadow: "0 4px 20px rgba(0, 0, 0, 0.2)",
-            position: "relative",
-            backgroundColor: theme.palette.background.paper,
-            ...customScrollbarStyles,
+            position: "absolute",
+            top: 10,
+            right: 10,
+            zIndex: 10,
+            color: theme.palette.grey[700],
+            backgroundColor: theme.palette.background.default,
+            borderRadius: "50%",
+            padding: "10px",
+            boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
           }}
+          onClick={handleCloseModal}
         >
-          <IconButton
-            sx={{
-              position: "absolute",
-              top: 10,
-              right: 10,
-              zIndex: 10,
-              color: theme.palette.grey[700],
-              backgroundColor: theme.palette.background.default,
-              borderRadius: "50%",
-              padding: "10px",
-              boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-            }}
-            onClick={handleCloseModal}
-          >
-            <CloseIcon />
-          </IconButton>
+          <CloseIcon />
+        </IconButton>
 
-          <CardContent>
-            <Grid container spacing={2} mb={2}>
-              <Grid item xs={12} sm={4}>
-                <Controller
-                  name="orderID"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      value={orderID || ""}
-                      label="Order ID"
-                      variant="outlined"
-                      fullWidth
-                      required
-                      disabled
-                    />
-                  )}
-                />
-              </Grid>
-              {/* <Grid item xs={12} sm={4}>
+        <CardContent>
+          <Grid container spacing={2} mb={2}>
+            <Grid item xs={12} sm={4}>
+              <Controller
+                name="orderID"
+                control={control}
+                render={({ field }) => (
+                  <TextField
+                    {...field}
+                    value={orderID || ""}
+                    label="Order ID"
+                    variant="outlined"
+                    fullWidth
+                    required
+                    disabled={orderID ? true : false}
+                    onChange={(e) => {
+                      field.onChange(e);
+                      setOrderID(e.target.value);
+                    }}
+                  />
+                )}
+              />
+            </Grid>
+            {/* <Grid item xs={12} sm={4}>
                 <Button
                   variant="contained"
                   onClick={handleSharableLink}
@@ -207,8 +210,8 @@ const GlobalUploadPage = () => {
                   Generate Link
                 </Button>
               </Grid> */}
-            </Grid>
-            {/* <Grid container spacing={2}>
+          </Grid>
+          {/* <Grid container spacing={2}>
               <Grid item sm={12}>
                 <Controller
                   name="shareLink"
@@ -236,91 +239,91 @@ const GlobalUploadPage = () => {
                 />
               </Grid>
             </Grid> */}
-            <Grid container spacing={2}>
-              <Grid item sm={12}>
-                <Box>
-                  <input type="file" onChange={handleFileChange} hidden />
-                  <Box
-                    onClick={handleClick}
-                    onDragOver={handleDragOver}
-                    onDrop={handleDrop}
-                    sx={{
-                      border: "2px dashed #cccccc",
-                      borderRadius: "10px",
-                      padding: "20px",
-                      textAlign: "center",
-                      cursor: "pointer",
-                      marginTop: "10px",
-                      height: "200px",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      backgroundColor: theme.palette.background.default,
-                      color: theme.palette.text.secondary,
-                      "&:hover": {
-                        borderColor: theme.palette.primary.main,
-                      },
-                    }}
-                  >
-                    <Typography>
-                      Drag and drop a file here or click to upload
-                    </Typography>
-                  </Box>
+          <Grid container spacing={2}>
+            <Grid item sm={12}>
+              <Box>
+                <input type="file" onChange={handleFileChange} hidden />
+                <Box
+                  onClick={handleClick}
+                  onDragOver={handleDragOver}
+                  onDrop={handleDrop}
+                  sx={{
+                    border: "2px dashed #cccccc",
+                    borderRadius: "10px",
+                    padding: "20px",
+                    textAlign: "center",
+                    cursor: "pointer",
+                    marginTop: "10px",
+                    height: "200px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    backgroundColor: theme.palette.background.default,
+                    color: theme.palette.text.secondary,
+                    "&:hover": {
+                      borderColor: theme.palette.primary.main,
+                    },
+                  }}
+                >
+                  <Typography>
+                    Drag and drop a file here or click to upload
+                  </Typography>
                 </Box>
-              </Grid>
+              </Box>
             </Grid>
+          </Grid>
 
-            {files.length > 0 && (
-              <TableContainer
-                component={Paper}
-                sx={{
-                  marginTop: "20px",
-                  marginBottom: "20px",
-                  ...customScrollbarStyles,
-                }}
-              >
-                <Table>
-                  <TableHead>
-                    <TableRow>
-                      <TableCell align="center">File Name</TableCell>
-                      <TableCell align="center">Download</TableCell>
-                      <TableCell align="center">Upload</TableCell>
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {files.map((file, index) => (
-                      <TableRow key={index}>
-                        <TableCell align="center">{file.name}</TableCell>
-                        <TableCell align="center">
+          {files.length > 0 && (
+            <TableContainer
+              component={Paper}
+              sx={{
+                marginTop: "20px",
+                marginBottom: "20px",
+                ...customScrollbarStyles,
+              }}
+            >
+              <Table>
+                <TableHead>
+                  <TableRow>
+                    <TableCell align="center">File Name</TableCell>
+                    <TableCell align="center">Download</TableCell>
+                    <TableCell align="center">Upload</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {files.map((file, index) => (
+                    <TableRow key={index}>
+                      <TableCell align="center">{file.name}</TableCell>
+                      <TableCell align="center">
+                        <IconButton
+                          color="secondary"
+                          onClick={() => handleDownload(file)}
+                        >
+                          <CloudDownloadIcon />
+                        </IconButton>
+                      </TableCell>
+                      <TableCell align="center">
+                        {!uploadStatus[file.name] ? (
                           <IconButton
-                            color="secondary"
-                            onClick={() => handleDownload(file)}
+                            color="primary"
+                            onClick={() => handleUpload(file)}
                           >
-                            <CloudDownloadIcon />
+                            <CloudUploadIcon />
                           </IconButton>
-                        </TableCell>
-                        <TableCell align="center">
-                          {!uploadStatus[file.name] ? (
-                            <IconButton
-                              color="primary"
-                              onClick={() => handleUpload(file)}
-                            >
-                              <CloudUploadIcon />
-                            </IconButton>
-                          ) : (
-                            <IconButton color="primary">
-                              <DoneIcon />
-                            </IconButton>
-                          )}
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            )}
+                        ) : (
+                          <IconButton color="primary">
+                            <DoneIcon />
+                          </IconButton>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
 
-            {/* {existingFiles.length > 0 && (
+          {/* {existingFiles.length > 0 && (
               <Box mt={3}>
                 <Typography
                   variant="h5"
@@ -371,9 +374,9 @@ const GlobalUploadPage = () => {
                 </TableContainer>
               </Box>
             )} */}
-          </CardContent>
-        </Card>
-      </Container>
+        </CardContent>
+      </Card>
+    </Container>
   );
 };
 
