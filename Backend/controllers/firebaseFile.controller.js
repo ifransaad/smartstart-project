@@ -66,21 +66,3 @@ export const fileDownload = async (req, res) => {
       .json({ message: "Error downloading file", error: error.message });
   }
 };
-/*
-    try {
-        const listRef = ref(storage, '');
-
-        listAll(listRef)
-        .then(async (res) => {
-          const { items } = res;
-          const urls = await Promise.all(
-            items.map((item) => getDownloadURL(item))
-          );
-          console.log(urls);
-        })
-        .catch((error) => {
-          // Uh-oh, an error occurred!
-        });
-    }
-
-*/

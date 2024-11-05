@@ -40,6 +40,7 @@ const customScrollbarStyles = {
 
 const GlobalUploadPage = () => {
   const theme = useTheme();
+  const [isOrderID, setIsOrderID] = useState(false);
   const [orderID, setOrderID] = useState("");
   const [files, setFiles] = useState([]);
   const [existingFiles, setExistingFiles] = useState([]);
@@ -62,7 +63,10 @@ const GlobalUploadPage = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const tokenFromURL = params.get("token");
-    setOrderID(tokenFromURL);
+    if (tokenFromURL) {
+      setOrderID(tokenFromURL);
+      setIsOrderID(true);
+    }
   }, [location]);
 
   console.log(orderID);
@@ -188,7 +192,7 @@ const GlobalUploadPage = () => {
                     variant="outlined"
                     fullWidth
                     required
-                    disabled={orderID ? true : false}
+                    disabled={isOrderID ? true : false}
                     onChange={(e) => {
                       field.onChange(e);
                       setOrderID(e.target.value);

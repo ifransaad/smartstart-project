@@ -6,10 +6,6 @@ const useUploadFiles = () => {
   const api = useApi();
   const uploadFiles = async (formData) => {
     try {
-      // let url = '/upload';  // Default restricted route
-      // if (token) {
-      //     url = `/share/upload?token=${token}`;  // Unrestricted route if token is available
-      // }
       const res = await axios.post(
         `${process.env.REACT_APP_LOCALHOST}/api/files/fileUpload`,
         formData,
