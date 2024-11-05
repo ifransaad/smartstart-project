@@ -1,16 +1,19 @@
-import dotenv from './utils/env.js';
-import express from 'express';
-import authRoutes from './routes/auth.routes.js';
-import degreeRoutes from './routes/degree.routes.js';
-import moduleRoutes from './routes/module.routes.js';
-import { newAccessToken } from './utils/generateToken.js';
-import cors from 'cors';
-import cookieParser from 'cookie-parser';
-import helmet from 'helmet';
-import './db/connectMongoDB.js'; // MongoDB connection file
-import multer from 'multer'; // For file handling
-import fileRoutes from './routes/files.routes.js';
-import { fileUpload, fileDownload } from './controllers/firebaseFile.controller.js';
+import dotenv from "./utils/env.js";
+import express from "express";
+import authRoutes from "./routes/auth.routes.js";
+import degreeRoutes from "./routes/degree.routes.js";
+import moduleRoutes from "./routes/module.routes.js";
+import { newAccessToken } from "./utils/generateToken.js";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+import helmet from "helmet";
+import "./db/connectMongoDB.js"; // MongoDB connection file
+import multer from "multer"; // For file handling
+import fileRoutes from "./routes/files.routes.js";
+import {
+  fileUpload,
+  fileDownload,
+} from "./controllers/firebaseFile.controller.js";
 
 // Initialize express app
 const app = express();
@@ -39,27 +42,24 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(helmet());
-app.use(cors({
-  origin: ["http://localhost:3000", "https://www.smartstart.cloud", "https://smartstart.cloud", "www.smartstart.cloud"],
-  credentials: true,
-}));
-
-
+app.use(
+  cors({
+    origin: [
+      "http://localhost:3000",
+      "https://www.smartstart.cloud",
+      "https://smartstart.cloud",
+      "www.smartstart.cloud",
+    ],
+    credentials: true,
+  })
+);
 
 // API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/degree", degreeRoutes);
 app.use("/api/module", moduleRoutes);
-app.use('/newAccessToken', newAccessToken);
-app.use('/api/files', fileRoutes);
-
-
-//Test File Firebase
-const storage = multer.memoryStorage();
-const upload = multer({ storage });
-app.post('/fileUpload',upload.single("file"),fileUpload)
-app.get('/fileDownload/:fileID',fileDownload)
-
+app.use("/newAccessToken", newAccessToken);
+app.use("/api/files", fileRoutes);
 
 // Start the server
 app.listen(process.env.PORT, () => {
