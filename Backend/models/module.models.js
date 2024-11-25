@@ -10,6 +10,22 @@ const moduleSchema = new mongo.Schema({
     type: String,
     required: true,
   },
+  mainAssignments: [
+    {
+      assignmentName: {
+        type: String,
+      },
+      assignmentType: {
+        type: String,
+      },
+      assignmentDeadline: {
+        type: Date,
+      },
+      referenceNumber: {
+        type: String,
+      },
+    },
+  ],
   moduleAssignments: [
     [
       {
@@ -19,7 +35,6 @@ const moduleSchema = new mongo.Schema({
       },
     ],
   ],
-  
 });
 
 const Module = infoDB.model("Module", moduleSchema, "Module");

@@ -44,7 +44,7 @@ export const newDegree = async (req, res) => {
       });
       // console.log(newDegree);
 
-      await newDegree.save();
+      // await newDegree.save();
 
       res.status(200).json(newDegree);
     }

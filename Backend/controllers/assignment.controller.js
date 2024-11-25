@@ -51,21 +51,6 @@ export const newAssignmentDynamic = async (assignmentList, studentList, moduleCo
               )
                 
               } else {
-                // Store main assignments
-                const newAssignmentMain = new Assignment({
-                  assignmentName: assignmentData.assignmentName,
-                  assignmentType: assignmentData.assignmentType,
-                  assignmentDeadline: assignmentData.assignmentDeadline,
-                  assignmentProgress: "TBA",
-                  assignmentPayment: 0,
-                  assignmentGrade: "",
-                  assignmentNature: "main",
-                  moduleCode: moduleCode,
-                  referenceNumber: assignmentData.referenceNumber,
-                });
-                const savedAssignmentMain = await newAssignmentMain.save();
-                assignmentIDs.push(savedAssignmentMain._id); // Collect each saved ID
-
                 // Store student basis assignment
 
                 // Create a new Assignment instance
@@ -98,6 +83,39 @@ export const newAssignmentDynamic = async (assignmentList, studentList, moduleCo
         throw new Error("Internal Server Error");
         // res.status(500).json({ error: "Internal Server Error" });
     }
+};
+
+export const setMainAssignment = async (assignmentList) => {
+  try {
+    // Use Promise.all to save all Assignment concurrently
+    const addedAssignment = await Promise.all(
+      assignmentList.map(async (assignmentData) => {
+        const assignmentList = [];
+        let currentAssignment = false;
+        if (currentAssignment) {
+          console.log('ashche');
+        } else {
+          // Store main assignments
+          const newAssignmentMain = {
+            assignmentName: assignmentData.assignmentName,
+            assignmentType: assignmentData.assignmentType,
+            assignmentDeadline: assignmentData.assignmentDeadline,
+            referenceNumber: assignmentData.referenceNumber,
+          };
+          assignmentList.push(newAssignmentMain); // Collect each saved ID
+        }
+
+        return assignmentList;
+      })
+    );
+    console.log(addedAssignment.flat());
+    
+    return addedAssignment; // Return the array of added Assignment IDs
+  } catch (error) {
+    console.error("Error in newAssignment:", error);
+    throw new Error("Internal Server Error");
+    // res.status(500).json({ error: "Internal Server Error" });
+  }
 };
 
 export const createNewModuleStudentAssignment = async (moduleID, studentList, assignmentList) => {
