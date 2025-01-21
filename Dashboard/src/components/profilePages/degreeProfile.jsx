@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import { tokens } from '../../theme';
 import { DataGrid, GridToolbar } from '@mui/x-data-grid';
-import StudentForm from '../forms/StudentForm';
+import StudentForm from '../forms/StudentForm.jsx';
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import useDeleteObjects from '../../hooks/useDeleteObjects';

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
 import {
@@ -14,7 +14,7 @@ const StudentForm = ({open, setOpen, degreeID, studentData, studentEditMode}) =>
     const colors = tokens(theme.palette.mode);
     const { sendStudent, updateStudent } = useSendStudentData();
     const navigate = useNavigate(); 
-    console.log(studentData.studentName, studentEditMode);
+    console.log(studentData, studentEditMode);
     
     
 
@@ -31,6 +31,28 @@ const StudentForm = ({open, setOpen, degreeID, studentData, studentEditMode}) =>
       studentContact: studentData.studentContact || "",
       degreeID: degreeID,
     });
+
+    useEffect(() => {
+      if (studentEditMode) {
+        setNewStudent({
+          studentID: studentData.studentID,
+          studentName: studentData.studentName,
+          studentLogin: studentData.studentLogin,
+          studentPassword: studentData.studentPassword,
+          studentContact: studentData.studentContact,
+          degreeID: studentData.degreeID,
+        });
+      } else {
+        setNewStudent({
+          studentID: "",
+          studentName: "",
+          studentLogin: "",
+          studentPassword: "",
+          studentContact: "",
+          degreeID: degreeID,
+        });
+      }
+    }, [studentEditMode]);
 
     const validateForm = () => {
         const newErrors = {};

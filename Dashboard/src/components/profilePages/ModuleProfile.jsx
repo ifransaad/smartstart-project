@@ -30,14 +30,13 @@ const ModuleProfile = () => {
   const colors = tokens(theme.palette.mode);
   const location = useLocation();
   const { moduleId } = location.state || [];
-  // console.log(degreeId, moduleCode, moduleId);
   const { moduleData, loading, error } = useFetchModuleData(degreeId, moduleId);
   const [mainAssignmentList, setMainAssignmentList] = useState([]);
   const [singleAssignmentList, setSingleAssignmentList] = useState(null);
   const handleFileOpen = () => {
     setOpen(true);
   };
-  const handleAssignmentButton = (value) => {
+  const handleAssignmentButton = (value) => {    
     for (let assignment of mainAssignmentList){      
       if (assignment.referenceNumber === value) {
         return assignment
@@ -62,6 +61,21 @@ const ModuleProfile = () => {
   //   // Log the single assignment list whenever it changes
   //   console.log(singleAssignmentList);
   // }, [singleAssignmentList]); // Log every time singleAssignmentList changes
+
+  if (loading) {
+    return (
+      <Box
+        mt="200px"
+        sx={{ display: "flex", justifyContent: "center", alignItems: "center" }}
+      >
+        <CircularProgress size={150} sx={{ color: colors.blueAccent[100] }} />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return <div>{error.message}</div>;
+  }
 
   return (
     <Box m="20px auto" display="flex" flexDirection="column" maxWidth="1000px">
