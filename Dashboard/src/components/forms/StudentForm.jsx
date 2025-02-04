@@ -222,6 +222,24 @@ const StudentForm = ({open, setOpen, degreeID, studentData, studentEditMode}) =>
             }}
             sx={{ mb: 2 }}
           />
+          <TextField label="Group Name" 
+           fullWidth 
+           value={newStudent.groupName} 
+           onChange={(e) => {
+            setNewStudent({ ...newStudent, groupName: e.target.value })
+            setErrors({ ...errors, groupName: "" });
+          }} 
+           sx={{ mb: 2 }} />
+          <TextField label="Tutor Name" fullWidth value={newStudent.tutorName} onChange={(e) => {
+            setNewStudent({ ...newStudent, tutorName: e.target.value })
+            setErrors({ ...errors, tutorName: "" });
+          }} sx={{ mb: 2 }} />
+          <TextField label="Campus Location" fullWidth value={newStudent.campusLocation} onChange={(e) => 
+            {  
+              setNewStudent({ ...newStudent, campusLocation: e.target.value })
+              setErrors({ ...errors, campusLocation: "" });
+            }
+            } sx={{ mb: 2 }} />
           {studentEditMode ? (
             <Button
               variant="contained"
