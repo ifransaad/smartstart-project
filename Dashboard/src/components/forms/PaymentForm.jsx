@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
 import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFnsV3";
@@ -29,13 +29,15 @@ import {
   TableHead,
   TableRow,
   Paper,
+  Chip,
 } from "@mui/material";
 import { tokens } from '../../theme';
 import useGetPaymentDetails from '../../hooks/useGetPaymentDetails';
 import useSendPaymentData from '../../hooks/useSendPaymentData';
 import { formatDate } from '../../utils/functions';
 
-const PaymentForm = ({ open, setOpen, paymentRequiredInformation }) => {
+const PaymentForm = ({ open, setOpen, paymentRequiredInformation }) => {   
+  
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
    const [formSaved, setFormSaved] = useState(false);
@@ -43,7 +45,7 @@ const PaymentForm = ({ open, setOpen, paymentRequiredInformation }) => {
    const [formErrorMessage, setFormErrorMessage] = useState('');
    const [formLoading, setformLoading] = useState(false);
   
-  const { paymentData } = useGetPaymentDetails(paymentRequiredInformation);
+  const { paymentData } = useGetPaymentDetails(paymentRequiredInformation);  
 
   const { updatePayment } = useSendPaymentData();
   
@@ -55,11 +57,14 @@ const PaymentForm = ({ open, setOpen, paymentRequiredInformation }) => {
     paymentStatus: "",
     paidAmount: "",
     otherPaymentMethod: "", // Additional field for "Other"
+    bankPaymentMethod: "", // Additional field for "Bank Transfer",
+    cashPaymentMethod: "", // Additional field for "Collect Payment"
+    referredPaymentMethod: "", // Additional field for "Referred Payment"
+    paymentVerificationStatus: "",
   });
 
     useEffect(() => {
-      if (paymentData) {
-        
+      if (paymentData) {        
         setPaymentDetails({
           totalPaymentDue: paymentData?.totalPaymentDue || "",
           totalPaymentToDate: paymentData?.totalPaymentToDate || "",
@@ -68,17 +73,33 @@ const PaymentForm = ({ open, setOpen, paymentRequiredInformation }) => {
           paymentStatus: paymentData?.paymentStatus || "NP",
           paidAmount: paymentData?.paidAmount || "",
           otherPaymentMethod: paymentData?.otherPaymentMethod || "",
-          paymentLog: paymentData?.paymentLog || []
+          bankPaymentMethod: paymentData?.bankPaymentMethod || "",
+          cashPaymentMethod: paymentData?.cashPaymentMethod || "",
+          referredPaymentMethod: paymentData?.referredPaymentMethod || "",
+          paymentLog: paymentData?.paymentLog || [],
+          paymentVerificationStatus:
+            paymentData?.paymentVerificationStatus || "awaiting approval",
         });
       }
     }, [paymentData]);
 
   const handleChange = (field, value) => {
+    
     setPaymentDetails({ ...paymentDetails, [field]: value });
-    if (field === "paidAmount"){
+    if (field === "paidAmount") {      
       setPaymentDetails({
         ...paymentDetails,
-        totalPaymentDue: (Number(paymentDetails.paymentAmount) - Number(value)).toString(),
+        totalPaymentDue: (
+          Number(paymentDetails.paymentAmount) - Number(value)
+        ).toString(),
+        [field]: value,
+      });
+    } else if ( field === "paymentAmount"){
+      setPaymentDetails({
+        ...paymentDetails,
+        totalPaymentDue: (
+          Number(value) - Number(paymentDetails.paidAmount)
+        ).toString(),
         [field]: value,
       });
     }
@@ -87,6 +108,9 @@ const PaymentForm = ({ open, setOpen, paymentRequiredInformation }) => {
   const handleSubmit = async () => {
     setformLoading(true);
     try{
+      if (paymentDetails.paymentVerificationStatus === "approved"){
+        setPaymentDetails({...paymentDetails, paymentVerificationStatus: "awaiting payment" })
+      }
       const response = await updatePayment(paymentDetails, paymentRequiredInformation);
       setPaymentDetails({...paymentDetails, paymentLog : response.paymentLog})
       console.log("Form Data:", paymentDetails);
@@ -228,6 +252,35 @@ const PaymentForm = ({ open, setOpen, paymentRequiredInformation }) => {
                   />
                 </LocalizationProvider>
               </Grid>
+              <Grid item xs={6} display='flex' alignItems='center'>
+                <Chip
+                  label={paymentDetails.paymentVerificationStatus === "awaiting approval" ? "Pending" : paymentDetails.paymentVerificationStatus === "approved"? "Approved" : "Pending"}
+                  sx={{
+                    width: '100%',
+                    borderRadius: 1,
+                    mb: 2,
+                    backgroundColor:
+                      paymentDetails.paymentVerificationStatus ===
+                      "awaiting approval"
+                        ? "#db4f4a" // Red for awaiting approval
+                        : paymentDetails.paymentVerificationStatus ===
+                          "approved"
+                        ? "#4cceac" // Green for approved
+                        : "#858585", // Default grey
+                    color:
+                      paymentDetails.paymentVerificationStatus ===
+                      "awaiting approval"
+                        ? "#fff"
+                        : paymentDetails.paymentVerificationStatus ===
+                          "approved"
+                        ? "#000"
+                        : "#fff",
+                    px: 2, // Padding for better appearance
+                    fontWeight: 'bold',
+                    fontSize: 14,
+                  }}
+                />
+              </Grid>
             </Grid>
             <Grid container spacing={2}>
               <Grid item xs={6}>
@@ -252,6 +305,39 @@ const PaymentForm = ({ open, setOpen, paymentRequiredInformation }) => {
                 </FormControl>
               </Grid>
               <Grid item xs={6}>
+                {paymentDetails.paymentMethod === "bank" && (
+                  <TextField
+                    label="Specify The Bank"
+                    fullWidth
+                    value={paymentDetails.bankPaymentMethod}
+                    onChange={(e) =>
+                      handleChange("bankPaymentMethod", e.target.value)
+                    }
+                    sx={{ mb: 2 }}
+                  />
+                )}
+                {paymentDetails.paymentMethod === "cash" && (
+                  <TextField
+                    label="Who collected the payment"
+                    fullWidth
+                    value={paymentDetails.cashPaymentMethod}
+                    onChange={(e) =>
+                      handleChange("cashPaymentMethod", e.target.value)
+                    }
+                    sx={{ mb: 2 }}
+                  />
+                )}
+                {paymentDetails.paymentMethod === "referral" && (
+                  <TextField
+                    label="Referred Person"
+                    fullWidth
+                    value={paymentDetails.referredPaymentMethod}
+                    onChange={(e) =>
+                      handleChange("referredPaymentMethod", e.target.value)
+                    }
+                    sx={{ mb: 2 }}
+                  />
+                )}
                 {paymentDetails.paymentMethod === "other" && (
                   <TextField
                     label="Specify Other Payment Method"
@@ -271,7 +357,8 @@ const PaymentForm = ({ open, setOpen, paymentRequiredInformation }) => {
             <Typography variant="h5" color={colors.grey[50]} sx={{ mb: 2 }}>
               Payment Details
             </Typography>
-            {paymentDetails.paymentLog && paymentDetails.paymentLog.length > 0 ? (
+            {paymentDetails.paymentLog &&
+            paymentDetails.paymentLog.length > 0 ? (
               <TableContainer component={Paper}>
                 <Table>
                   <TableHead>

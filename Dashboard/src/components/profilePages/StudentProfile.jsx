@@ -24,7 +24,7 @@ const StudentProfile = () => {
     const { _id, studentName, studentContact, studentLogin, studentPassword } = student || {};
     // console.log("student :::", student);
     
-    const { degreeModules } = location.state || [];    
+    const { degreeModules } = location.state || [];        
 
     const [open, setOpen] = useState(false);
     const [selectedModule, setSelectedModule] = useState(degreeModules[0]?._id || null);

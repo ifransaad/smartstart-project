@@ -1,26 +1,33 @@
+import Degree from "../models/degree.models.js";
 import Module from "../models/module.models.js";
 import ModuleStudentFinance from "../models/moduleStudentFinance.models.js";
 
-export const addNewPayment = async (studentID, moduleID, moduleCost, degreeDetailsForPayment) => {
-    const { degreeID, degreeName, degreeYear } = degreeDetailsForPayment
-    try {
-        const newPayment = new ModuleStudentFinance({
-          studentID,
-          moduleID,
-          modulePrice : moduleCost,
-          degreeID,
-          degreeName, 
-          degreeYear
-        });
-        // console.log('ashche', newPayment, moduleCost);
-        
-        await newPayment.save();
-        return newPayment._id;
-    } catch (error) {
-        console.log(error);
-        return null;
-    }
-}
+export const addNewPayment = async (paymentRequiredInformation) => {
+  const { degreeID, assignmentID, moduleCode, studentID } =
+    paymentRequiredInformation;
+  // Find the module ID using the moduleCode
+  const module = await Module.findOne({
+    moduleCode,
+  }).select("_id moduleName moduleCode");
+  const degree = await Degree.findOne({
+    degreeID
+  }).select("degreeName degreeYear");;
+  
+  try {
+    const newPayment = new ModuleStudentFinance({
+      studentID,
+      moduleID: module._id,
+      degreeID,
+      degreeName: degree.degreeName,
+      degreeYear: degree.degreeYear,
+      moduleName: module.moduleName,
+    });
+    await newPayment.save();
+  } catch (error) {
+    console.log(error);
+    return null;
+  }
+};
 
 export const getPaymentDetails = async (req, res) => {
     const { assignmentID, moduleCode, studentID } = req.body;
@@ -64,19 +71,24 @@ export const updatePaymentDetails = async (req, res) => {
     paymentStatus,
     paidAmount,
     otherPaymentMethod,
+    bankPaymentMethod,
+    cashPaymentMethod,
+    referredPaymentMethod,
     paymentRequiredInformation,
   } = req.body;
   try {
     const updateDetails = {};
-    if (paymentAmount) {
-      updateDetails.modulePrice = paymentAmount;
-    }
+    if (paymentAmount) updateDetails.modulePrice = paymentAmount;
     if (totalPaymentDue) updateDetails.totalPaymentDue = totalPaymentDue;
     if (totalPaymentToDate) updateDetails.totalPaymentToDate = totalPaymentToDate;
     if (paymentMethod) updateDetails.paymentMethod = paymentMethod;
     if (paymentStatus) updateDetails.paymentStatus = paymentStatus
     if (paidAmount) updateDetails.paidAmount = paidAmount;
     if (otherPaymentMethod) updateDetails.otherPaymentMethod = otherPaymentMethod;
+    if (bankPaymentMethod) updateDetails.bankPaymentMethod = bankPaymentMethod;
+    if (cashPaymentMethod) updateDetails.cashPaymentMethod = cashPaymentMethod;
+    if (referredPaymentMethod) updateDetails.referredPaymentMethod = referredPaymentMethod;
+    
     // Find the module ID using the moduleCode
     const module = await Module.findOne({
       moduleCode: paymentRequiredInformation.moduleCode,
@@ -90,6 +102,12 @@ export const updatePaymentDetails = async (req, res) => {
       studentID: paymentRequiredInformation.studentID,
       moduleID: module._id,
     });
+    if (!finances) {
+      addNewPayment(paymentRequiredInformation);
+      return res
+       .status(200)
+       .json({ error: "New Payment Created." });
+    }
     const paymentLog = createPaymentLog(finances, updateDetails)
     
     // Find the specific assignment by its ID and update it

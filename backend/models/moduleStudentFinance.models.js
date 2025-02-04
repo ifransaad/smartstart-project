@@ -26,8 +26,12 @@ const moduleStudentFinanceSchema = new mongoose.Schema({
   degreeYear: {
     type: String,
   },
+  moduleName: {
+    type: String,
+  },
   modulePrice: {
     type: String,
+    default: "0",
   },
   totalPaymentDue: {
     type: String,
@@ -44,8 +48,21 @@ const moduleStudentFinanceSchema = new mongoose.Schema({
   paidAmount: {
     type: String,
   },
+  bankPaymentMethod: {
+    type: String,
+  },
+  cashPaymentMethod: {
+    type: String,
+  },
+  referredPaymentMethod: {
+    type: String,
+  },
   otherPaymentMethod: {
     type: String,
+  },
+  paymentVerificationStatus: {
+    type: String,
+    default: "awaiting approval",
   },
   paymentLog: [
     {

@@ -27,7 +27,7 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import AssignmentForm from '../forms/AssignmentForm';
 import Slide from '@mui/material/Slide';
 import useDeleteObjects from '../../hooks/useDeleteObjects';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import PaymentForm from '../forms/PaymentForm';
 import { set } from 'date-fns';
 
@@ -47,11 +47,13 @@ const AssignmentList = ({ list, degreeModules, student }) => {
   const [paymentRequiredInformation, setPaymentRequiredInformation] = useState({});
   const {deleteAssignment} = useDeleteObjects()
   // console.log("students from parent ::::", student)
+  const { degreeId } = useParams(); 
+
   const handleEditAssignment = (assignment) => {
     setCurrentAssignment(assignment);    
     setOpenDialog(true);
   };
-
+  
   const navigate = useNavigate(); 
 
   const handleDeleteAssignment = async (assignment) => {
@@ -162,9 +164,10 @@ const AssignmentList = ({ list, degreeModules, student }) => {
 
   const handlePaymentOpen = (assignmentID, moduleCode, studentID) => {
     setPaymentRequiredInformation({
-      assignmentID: assignmentID,
-      moduleCode: moduleCode,
-      studentID: studentID
+      degreeID: degreeId,
+      assignmentID,
+      moduleCode,
+      studentID
     });
     
     setPaymentOpen(true);
