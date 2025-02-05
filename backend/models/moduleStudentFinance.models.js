@@ -5,7 +5,7 @@ import mongoose from "mongoose";
 const moduleStudentFinanceSchema = new mongoose.Schema({
   userID: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: "users",
     required: true,
   },
   studentID: {

@@ -1,5 +1,6 @@
 import Degree from "../models/degree.models.js";
 import Module from "../models/module.models.js";
+import User from "../models/user.models.js";
 import ModuleStudentFinance from "../models/moduleStudentFinance.models.js";
 
 export const addNewPayment = async (paymentRequiredInformation, userID) => {
@@ -43,7 +44,7 @@ export const getPaymentDetails = async (req, res) => {
     const finances = await ModuleStudentFinance.find({
         studentID,
         moduleID: module._id,
-    });
+    });    
 
     res.status(200).json(finances[0] );
     } catch (error) {
@@ -52,11 +53,35 @@ export const getPaymentDetails = async (req, res) => {
     }
 };
 
-export const getPaymentDetailsByType = async (req, res) => {  
+export const getPaymentDetailsAll = async (req, res) => {  
   try {
     // Find all records in ModuleStudentFinance where studentID and moduleID match
-    const finances = await ModuleStudentFinance.find();
-    res.status(200).json(finances);
+    // 1️⃣ Fetch finance data with student details
+    const finances = await ModuleStudentFinance.find()
+      .populate("studentID", "studentName studentID")
+      .lean(); // Convert Mongoose documents to plain JS objects
+
+    // 2️⃣ Extract unique userIDs
+    const userIds = finances.map((finance) => finance.userID);
+
+    // 3️⃣ Fetch user details from the separate `userDB`
+    const users = await User.find({ _id: { $in: userIds } })
+      .select("userName")
+      .lean();
+
+    // 4️⃣ Create a map for quick lookup
+    const userMap = users.reduce((map, user) => {
+      map[user._id.toString()] = user;
+      return map;
+    }, {});
+
+    // 5️⃣ Attach user details to the finance records
+    const enrichedFinances = finances.map((finance) => ({
+      ...finance,
+      user: userMap[finance.userID?.toString()] || null, // Attach user details or null if not found
+    }));
+
+    res.status(200).json(enrichedFinances);
   } catch (error) {
     console.error("Error fetching finance data:", error);
     res.status(500).json({ error: "An error occurred while fetching data" });
@@ -76,6 +101,7 @@ export const updatePaymentDetails = async (req, res) => {
     cashPaymentMethod,
     referredPaymentMethod,
     paymentRequiredInformation,
+    paymentVerificationStatus,
     userID
   } = req.body;
   try {
@@ -90,6 +116,7 @@ export const updatePaymentDetails = async (req, res) => {
     if (bankPaymentMethod) updateDetails.bankPaymentMethod = bankPaymentMethod;
     if (cashPaymentMethod) updateDetails.cashPaymentMethod = cashPaymentMethod;
     if (referredPaymentMethod) updateDetails.referredPaymentMethod = referredPaymentMethod;
+    if (paymentVerificationStatus) updateDetails.paymentVerificationStatus = paymentVerificationStatus;
     if (userID) updateDetails.userID = userID;
     
     // Find the module ID using the moduleCode
@@ -132,13 +159,58 @@ export const updatePaymentDetails = async (req, res) => {
   }
 };
 
-const createPaymentLog = (previousData, newData) => {
+export const updatePaymentStatus = async (req, res) => {
+  const {
+    paymentVerificationStatus,
+    id
+  } = req.body;
+  try {
+    const updateDetails = {};
+    if (paymentVerificationStatus)
+      updateDetails.paymentVerificationStatus = paymentVerificationStatus;
+
+    const paymentLog = createPaymentLog(updateDetails, true);   
+
+    // Find the specific assignment by its ID and update it
+    const payment = await ModuleStudentFinance.findByIdAndUpdate(
+      id,
+      { $set: updateDetails, $push: { paymentLog } },
+      { new: true } // Return the updated document
+    );
+    if (payment) {
+      res.status(200).json(payment);
+    } else {
+      res
+        .status(404)
+        .json({ error: "No payment found for the provided payment ID" });
+    }
+  } catch (error) {
+    console.error("Error sending finance data:", error);
+    res.status(500).json({ error: "An error occurred while fetching data" });
+  }
+};
+
+const createPaymentLog = (previousData=null, newData, statusUpdate = false) => {
+
     let logString = ''    
-    if (previousData.paidAmount && previousData.paymentMethod && previousData.totalPaymentDue){
-        logString = `A PAYMENT WAS MADE OF ${Number(newData.paidAmount) - Number(previousData.paidAmount)} GBP at ${newData.totalPaymentToDate}. Remaining ${newData.totalPaymentDue} GBP`;
+    if (statusUpdate) {
+      logString = `Payment STATUS UPDATED TO ${newData.paymentVerificationStatus}`;
+    } else {
+    if (
+      previousData.paidAmount &&
+      previousData.paymentMethod &&
+      previousData.totalPaymentDue
+    ) {
+      logString = `A PAYMENT WAS MADE OF ${
+        Number(newData.paidAmount) - Number(previousData.paidAmount)
+      } GBP at ${newData.totalPaymentToDate}. Remaining ${
+        newData.totalPaymentDue
+      } GBP`;
     } else {
       logString = `A PAYMENT IS SET FOR ${newData.totalPaymentDue} GBP`;
     }
+    }
+
     const date = new Date().toUTCString()
     return {date, logString}
     
