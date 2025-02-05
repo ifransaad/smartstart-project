@@ -315,7 +315,8 @@ const DegreeProfile = () => {
           slots={{ toolbar: GridToolbar }}
           pageSizeOptions={[5, 10, 20]}
           autoHeight
-          onRowClick={(params) => navigate(`/task/${degreeYear}/${degreeId}/student/${params.row.studentID}`)}
+          onRowClick={handleRowClick}
+          sx= {{ cursor: "pointer" }}
         />
         <Button variant="contained" sx={{ mt: 3, display: "block", mx: "auto", backgroundColor: colors.blueAccent[500] }} onClick={() => setOpen(true)}>
           Add Student
@@ -333,7 +334,12 @@ const DegreeProfile = () => {
         </Box>
       )}
 
-      <StudentForm open={open} setOpen={setOpen} degreeID={degreeId} studentData={studentData} studentEditMode={studentEditMode} />
+      <StudentForm 
+       open={open}
+       setOpen={setOpen} 
+       degreeID={degreeId} 
+       studentData={studentData} 
+       studentEditMode={studentEditMode} />
 
       {/* <Snackbar
                 open={snackbarOpen}
