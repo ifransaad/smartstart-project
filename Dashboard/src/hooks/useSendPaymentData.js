@@ -1,8 +1,10 @@
 import React from "react";
 import useApi from "./useApi";
+import { useAuthContext } from "../context/AuthContext";
 
 const useSendPaymentData = () => {
   const api = useApi();
+  const { authUser } = useAuthContext();  
   const updatePayment = async (
     {
       totalPaymentDue,
@@ -17,7 +19,7 @@ const useSendPaymentData = () => {
       referredPaymentMethod
     },
     paymentRequiredInformation
-  ) => {
+  ) => {    
     try {
       const res = await api.post(`/api/module/updatePaymentData`, {
         totalPaymentDue,
@@ -31,6 +33,7 @@ const useSendPaymentData = () => {
         cashPaymentMethod,
         referredPaymentMethod,
         paymentRequiredInformation,
+        userID: authUser._id
       });
       const data = await res.data;
       if (data.error) {

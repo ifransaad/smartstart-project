@@ -2,7 +2,7 @@ import Degree from "../models/degree.models.js";
 import Module from "../models/module.models.js";
 import ModuleStudentFinance from "../models/moduleStudentFinance.models.js";
 
-export const addNewPayment = async (paymentRequiredInformation) => {
+export const addNewPayment = async (paymentRequiredInformation, userID) => {
   const { degreeID, assignmentID, moduleCode, studentID } =
     paymentRequiredInformation;
   // Find the module ID using the moduleCode
@@ -15,6 +15,7 @@ export const addNewPayment = async (paymentRequiredInformation) => {
   
   try {
     const newPayment = new ModuleStudentFinance({
+      userID,
       studentID,
       moduleID: module._id,
       degreeID,
@@ -75,6 +76,7 @@ export const updatePaymentDetails = async (req, res) => {
     cashPaymentMethod,
     referredPaymentMethod,
     paymentRequiredInformation,
+    userID
   } = req.body;
   try {
     const updateDetails = {};
@@ -88,6 +90,7 @@ export const updatePaymentDetails = async (req, res) => {
     if (bankPaymentMethod) updateDetails.bankPaymentMethod = bankPaymentMethod;
     if (cashPaymentMethod) updateDetails.cashPaymentMethod = cashPaymentMethod;
     if (referredPaymentMethod) updateDetails.referredPaymentMethod = referredPaymentMethod;
+    if (userID) updateDetails.userID = userID;
     
     // Find the module ID using the moduleCode
     const module = await Module.findOne({
@@ -103,7 +106,7 @@ export const updatePaymentDetails = async (req, res) => {
       moduleID: module._id,
     });
     if (!finances) {
-      addNewPayment(paymentRequiredInformation);
+      addNewPayment(paymentRequiredInformation, userID);
       return res
        .status(200)
        .json({ error: "New Payment Created." });

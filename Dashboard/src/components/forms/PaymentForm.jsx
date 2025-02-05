@@ -35,15 +35,17 @@ import { tokens } from '../../theme';
 import useGetPaymentDetails from '../../hooks/useGetPaymentDetails';
 import useSendPaymentData from '../../hooks/useSendPaymentData';
 import { formatDate } from '../../utils/functions';
+import { useAuthContext } from '../../context/AuthContext';
 
 const PaymentForm = ({ open, setOpen, paymentRequiredInformation }) => {   
   
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-   const [formSaved, setFormSaved] = useState(false);
-   const [formError, setFormError] = useState(false);
-   const [formErrorMessage, setFormErrorMessage] = useState('');
-   const [formLoading, setformLoading] = useState(false);
+  
+  const [formSaved, setFormSaved] = useState(false);
+  const [formError, setFormError] = useState(false);
+  const [formErrorMessage, setFormErrorMessage] = useState('');
+  const [formLoading, setformLoading] = useState(false);
   
   const { paymentData } = useGetPaymentDetails(paymentRequiredInformation);  
 
@@ -254,7 +256,7 @@ const PaymentForm = ({ open, setOpen, paymentRequiredInformation }) => {
               </Grid>
               <Grid item xs={6} display='flex' alignItems='center'>
                 <Chip
-                  label={paymentDetails.paymentVerificationStatus === "awaiting approval" ? "Pending" : paymentDetails.paymentVerificationStatus === "approved"? "Approved" : "Pending"}
+                  label={paymentDetails.paymentVerificationStatus === "awaiting approval" ? "Pending" : paymentDetails.paymentVerificationStatus === "approved"? "Approved" : "No Status"}
                   sx={{
                     width: '100%',
                     borderRadius: 1,
