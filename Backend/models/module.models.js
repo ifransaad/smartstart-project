@@ -19,7 +19,7 @@ const moduleSchema = new mongo.Schema({
       },
     ],
   ],
-  
+  moduleFiles: [{ type: Array, default: [] }],
 });
 
 const Module = infoDB.model("Module", moduleSchema, "Module");

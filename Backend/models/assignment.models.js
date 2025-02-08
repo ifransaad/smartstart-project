@@ -34,7 +34,7 @@ const AssignmentSchema = new mongo.Schema({
   referenceNumber: {
     type: String,
   },
-});
+}, { timestamps: true });
 
 // Create a unique sparse index on `orderID`
 AssignmentSchema.index({ orderID: 1 }, { unique: true, sparse: true });

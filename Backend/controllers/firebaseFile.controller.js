@@ -10,12 +10,20 @@ import {
 } from "firebase/storage";
 
 import axios from "axios";
+import Module from "../models/module.models.js";
 
 const storage = getStorage(app);
 
 export const fileUpload = async (req, res) => {
   try {
-    const { orderID, category } = req.body;
+    const {
+      referenceID,
+      referenceCollection,
+      fileCategory,
+      uploadedByUserID,
+      uploadedByUserName,
+      writerFlag
+    } = req.body;
     const storageRef = ref(storage, req.file.originalname);
 
     const metadata = {
@@ -32,20 +40,39 @@ export const fileUpload = async (req, res) => {
 
     // Save the file data to MongoDB
     const newFile = new File({
-      orderID: orderID, // Use orderID as token
+      referenceID,
+      referenceCollection,
+      fileCategory,
+      uploadedByUserID,
+      uploadedByUserName,
       fileName: req.file.originalname,
       fileType: req.file.mimetype,
       fileUrl: downloadURL,
-      category: category, // Set the category
     });
 
     await newFile.save();
 
-    // Add the new file ID to the assignment's `assignmentFile` array
-    const assignment = await Assignment.findOne({ orderID });
-    assignment.assignmentFile.push(newFile._id);
-    // Save the updated assignment
-    await assignment.save();
+    if (referenceCollection === "Assignment") {
+      if (writerFlag) {
+        // Add the new file ID to the assignment's `assignmentFile` array
+        const assignment = await Assignment.findOne({ orderID: referenceID }); // Find the Assignment document by its ID);
+        assignment.assignmentFile.push(newFile._id);
+        // Save the updated assignment
+        await assignment.save();
+      } else {
+        const assignment = await Assignment.findByIdAndUpdate(
+          { _id: referenceID }, // Find the Assignment document by its ID
+          { $push: { assignmentFile: newFile._id } }, // Push new file ID into "assignmentFile" array
+          { new: true } // Return updated document
+        );
+      }
+    } else if (referenceCollection === "Module") {
+      const module = await Module.findByIdAndUpdate(
+        {_id: referenceID}, // Find the Assignment document by its ID
+        { $push: { assignmentFile: newFile._id } }, // Push new file ID into "assignmentFile" array
+        { new: true } // Return updated document
+      );
+    }
 
     res
       .status(201)
