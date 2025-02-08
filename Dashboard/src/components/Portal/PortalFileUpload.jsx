@@ -28,7 +28,7 @@ const PortalFileUpload = ({orderIDPass, close, main=false, isModule=false}) => {
   const [uploadSuccess, setUploadSuccess] = useState(false);
   const [existingFiles, setExistingFiles] = useState([]);
   const [existingFilteredFiles, setExistingFilteredFiles] = useState([]);
-  const { uploadFiles, downloadFiles, handleGenerateShareableLink, deleteFiles } = useUploadFiles();
+  const { uploadFiles, downloadFiles, deleteFiles } = useUploadFiles();
   const { fileList } = useFetchFileList(orderID);
   
   const {
@@ -52,13 +52,15 @@ const PortalFileUpload = ({orderIDPass, close, main=false, isModule=false}) => {
     setFiles((prevFiles) => [...prevFiles, ...selectedFiles]);
   };
 
-  const handleUpload = async (file) => {
+  const handleUpload = async (file) => {    
     // Prepare form data for upload
     const formData = new FormData();
     formData.append("file", file);
     formData.append("orderID", orderID);
-    formData.append("category", "assignment");
-    try {
+    formData.append("referenceCollection", "Assignment");
+    formData.append("fileCategory", "assignment");
+    
+    try {      
       const response = await uploadFiles(formData);
       console.log("Response Data:", response);
       setUploadSuccess(true);

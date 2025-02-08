@@ -15,10 +15,13 @@ import Module from "../models/module.models.js";
 const storage = getStorage(app);
 
 export const fileUpload = async (req, res) => {
+  console.log(req.body);
+  
   try {
     const {
       referenceID,
       referenceCollection,
+      orderID,
       fileCategory,
       uploadedByUserID,
       uploadedByUserName,
@@ -42,6 +45,7 @@ export const fileUpload = async (req, res) => {
     const newFile = new File({
       referenceID,
       referenceCollection,
+      orderID,
       fileCategory,
       uploadedByUserID,
       uploadedByUserName,
@@ -55,7 +59,7 @@ export const fileUpload = async (req, res) => {
     if (referenceCollection === "Assignment") {
       if (writerFlag) {
         // Add the new file ID to the assignment's `assignmentFile` array
-        const assignment = await Assignment.findOne({ orderID: referenceID }); // Find the Assignment document by its ID);
+        const assignment = await Assignment.findOne({ orderID }); // Find the Assignment document by its ID);
         assignment.assignmentFile.push(newFile._id);
         // Save the updated assignment
         await assignment.save();

@@ -13,11 +13,13 @@ const fileSchema = new mongoose.Schema(
     },
     referenceID: {
       type: mongoose.Schema.Types.ObjectId, // Stores ObjectId
-      required: true,
     },
     referenceCollection: {
       type: String, // Stores collection name to identify source
       required: true,
+    },
+    orderID: {
+      type: String,
     },
     fileUrl: {
       type: String,
