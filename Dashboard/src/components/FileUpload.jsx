@@ -32,11 +32,10 @@ const FileUpload = ({ orderID: orderIDFromParent, setOpen, open, isModule=false 
   const [files, setFiles] = useState([]);
   const [existingFiles, setExistingFiles] = useState([]);
   const [existingFilteredFiles, setExistingFilteredFiles] = useState([]);
-  // const [token, setToken] = useState(null);
   const [orderID, setOrderID] = useState(orderIDFromParent);
   const [category, setCategory] = useState(isModule ? "module" : "assignment");
-  // const [shareLink, setShareLink] = useState('');
   const [uploadStatus, setUploadStatus] = useState({});
+  const [uploadTimeline, setUploadTimeline] = useState([]);
   const { uploadFiles, downloadFiles, handleGenerateShareableLink, deleteFiles } = useUploadFiles();
   const { fileList } = useFetchFileList(orderID);
 
@@ -52,14 +51,6 @@ const FileUpload = ({ orderID: orderIDFromParent, setOpen, open, isModule=false 
     console.log(existingFilteredFiles);
     
   }, [fileList]);
-
-  // const location = useLocation();
-
-  // useEffect(() => {
-  //   const params = new URLSearchParams(location.search);
-  //   const tokenFromURL = params.get("token");
-  //   setToken(tokenFromURL);
-  // }, [location]);
 
   const handleFileChange = (event) => {
     const selectedFiles = Array.from(event.target.files);
@@ -91,13 +82,27 @@ const FileUpload = ({ orderID: orderIDFromParent, setOpen, open, isModule=false 
     formData.append("file", file);
     formData.append("orderID", orderID);
     formData.append("category", category);
+    formData.append("uploadDateTime", new Date().toISOString());
+    formData.append("fileType", file.type); 
+    formData.append("uploadedBy", "UserName"); 
     try {
       const response = await uploadFiles(formData);
       setUploadStatus((prevStatus) => ({
         ...prevStatus,
         [file.name]: true,
       }));
-      // console.log("will navigate", location.pathname)
+
+       // Add to timeline
+    setUploadTimeline((prevTimeline) => [
+      ...prevTimeline,
+      {
+        fileName: file.name,
+        fileType: file.type,
+        uploadDateTime: new Date().toLocaleString(),
+        uploadedBy: "UserName",
+      },
+    ]);
+
       setTimeout(() => {
         navigate(0);
         console.log("navigated ");
@@ -130,29 +135,6 @@ const FileUpload = ({ orderID: orderIDFromParent, setOpen, open, isModule=false 
   const handleCloseModal = () => {
     setOpen(false);
   };
-
-  // const handleSharableLink = async () => {
-  //   try {
-  //     const response = await handleGenerateShareableLink(orderID);
-  //     setShareLink(response.shareableLink)
-  //     console.log(response);
-  //   } catch (error) {
-  //     console.log(error.message);
-  //   }
-  // }
-
-  // const handleLinkCopy = () => {
-  //   if (shareLink) {
-  //     navigator.clipboard
-  //       .writeText(shareLink)
-  //       .then(() => {
-  //         alert("Share link copied to clipboard!");
-  //       })
-  //       .catch((err) => {
-  //         console.error("Failed to copy the link: ", err);
-  //       });
-  //   }
-  // };
 
   const handleCategoryChange = (category) => {
     const filteredFiles = existingFiles.filter(
@@ -255,48 +237,8 @@ const FileUpload = ({ orderID: orderIDFromParent, setOpen, open, isModule=false 
                   )}
                 />
               </Grid>
-              {/* <Grid item xs={12} sm={4}>
-                <Button
-                  variant="contained"
-                  onClick={handleSharableLink}
-                  color="primary"
-                  sx={{
-                    height: "100%",
-                    width: "100%",
-                  }}
-                >
-                  Generate Link
-                </Button>
-              </Grid> */}
             </Grid>
-            {/* <Grid container spacing={2}>
-              <Grid item sm={12}>
-                <Controller
-                  name="shareLink"
-                  control={control}
-                  render={({ field }) => (
-                    <TextField
-                      {...field}
-                      value={shareLink || ""}
-                      label="Share Link"
-                      variant="outlined"
-                      fullWidth
-                      required
-                      disabled
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <IconButton onClick={handleLinkCopy} edge="end">
-                              <ContentCopyIcon />
-                            </IconButton>
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                  )}
-                />
-              </Grid>
-            </Grid> */}
+            
             <Grid container spacing={2}>
               <Grid item sm={12}>
                 <Box>
@@ -417,58 +359,75 @@ const FileUpload = ({ orderID: orderIDFromParent, setOpen, open, isModule=false 
               </Grid>
             </Grid>}
 
-            {existingFilteredFiles.length > 0 && (
-              <Box mt={3}>
-                <TableContainer
-                  component={Paper}
-                  sx={{ marginTop: "20px", ...customScrollbarStyles }}
-                >
-                  <Table>
-                    <TableHead>
-                      <TableRow>
-                        <TableCell align="center">File Name</TableCell>
-                        <TableCell align="center">Download</TableCell>
-                        <TableCell align="center">Delete</TableCell>
+            {(existingFilteredFiles.length > 0 || uploadTimeline.length > 0) && (
+            <Box mt={3}>
+              <Typography variant="h6" gutterBottom>
+                File Management
+              </Typography>
+              <TableContainer component={Paper} sx={{ marginTop: "10px", ...customScrollbarStyles }}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell align="center">File Name</TableCell>
+                      <TableCell align="center">File Type</TableCell>
+                      <TableCell align="center">Upload Date & Time</TableCell>
+                      <TableCell align="center">Uploaded By</TableCell>
+                      <TableCell align="center">Download</TableCell>
+                      <TableCell align="center">Delete</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {existingFilteredFiles.map((file, index) => (
+                      <TableRow key={index}>
+                        <TableCell align="center">
+                          <Typography
+                            align="center"
+                            onClick={() => handleView(file)}
+                            sx={{ cursor: "pointer", textDecoration: "underline" }}
+                          >
+                            {file.fileName}
+                          </Typography>
+                        </TableCell>
+                        <TableCell align="center">{file.fileType || "Unknown"}</TableCell>
+                        <TableCell align="center">{file.uploadDateTime || "N/A"}</TableCell>
+                        <TableCell align="center">{file.uploadedBy || "Unknown"}</TableCell>
+                        <TableCell align="center">
+                          <IconButton color="secondary" onClick={() => handleDownload(file)}>
+                            <CloudDownloadIcon />
+                          </IconButton>
+                        </TableCell>
+                        <TableCell align="center">
+                          <IconButton color="error" onClick={() => handleDelete(file)}>
+                            <DeleteOutlineOutlinedIcon />
+                          </IconButton>
+                        </TableCell>
                       </TableRow>
-                    </TableHead>
-                    <TableBody>
-                      {existingFilteredFiles.map((file, index) => (
-                        <TableRow key={index}>
-                          <TableCell align="center">
-                            <Typography
-                              align="center"
-                              onClick={() => handleView(file)}
-                              sx={{
-                                cursor: "pointer",
-                                textDecoration: "underline",
-                              }}
-                            >
-                              {file.fileName}
-                            </Typography>
-                          </TableCell>
-                          <TableCell align="center">
-                            <IconButton
-                              color="secondary"
-                              onClick={() => handleDownload(file)}
-                            >
-                              <CloudDownloadIcon />
-                            </IconButton>
-                          </TableCell>
-                          <TableCell align="center">
-                            <IconButton
-                              color="error"
-                              onClick={() => handleDelete(file)}
-                            >
-                              <DeleteOutlineOutlinedIcon />
-                            </IconButton>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </TableContainer>
-              </Box>
-            )}
+                    ))}
+                    {uploadTimeline.map((entry, index) => (
+                      <TableRow key={index + existingFilteredFiles.length}>
+                        <TableCell align="center">{entry.fileName}</TableCell>
+                        <TableCell align="center">{entry.fileType}</TableCell>
+                        <TableCell align="center">{entry.uploadDateTime}</TableCell>
+                        <TableCell align="center">{entry.uploadedBy}</TableCell>
+                        <TableCell align="center">
+                          <IconButton color="secondary" onClick={() => handleDownload(entry)}>
+                            <CloudDownloadIcon />
+                          </IconButton>
+                        </TableCell>
+                        <TableCell align="center">
+                          <IconButton color="error" onClick={() => handleDelete(entry)}>
+                            <DeleteOutlineOutlinedIcon />
+                          </IconButton>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </Box>
+          )}
+
+
           </CardContent>
         </Card>
       </Container>
