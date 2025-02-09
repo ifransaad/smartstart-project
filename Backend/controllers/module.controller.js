@@ -84,7 +84,6 @@ export const getAssignment = async (req, res) => {
 export const getModuleData = async (req, res) => {
   try {
     const { degreeID, moduleID } = req.params;
-    
 
     // Step 1: Retrieve the module details by moduleID
     const module = await Module.findById(moduleID).populate({

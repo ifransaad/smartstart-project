@@ -2,55 +2,55 @@ import Assignment from "../models/assignment.models.js";
 import File from "../models/files.model.js";
 import { forceMongo } from "../utils/forceMongoFieldNotUnique.js";
 
-// Controller to handle file upload
-export const uploadFile = async (req, res) => {
-  try {
-    const { orderID, category } = req.body; // Use orderID from params (token in shareable link)
+// // Controller to handle file upload
+// export const uploadFile = async (req, res) => {
+//   try {
+//     const { orderID, category } = req.body; // Use orderID from params (token in shareable link)
 
-    if (!orderID) {
-      return res.status(400).json({ message: "Order ID (token) is required" });
-    }
+//     if (!orderID) {
+//       return res.status(400).json({ message: "Order ID (token) is required" });
+//     }
 
-    if (!category) {
-      return res.status(400).json({ message: "Category is required" });
-    }
+//     if (!category) {
+//       return res.status(400).json({ message: "Category is required" });
+//     }
 
-    // Find the assignment with the given orderID
-    const assignment = await Assignment.findOne({ orderID });
+//     // Find the assignment with the given orderID
+//     const assignment = await Assignment.findOne({ orderID });
 
-    // Check if the assignment exists
-    if (!assignment) {
-      return res.status(404).json({ message: "Assignment not found" });
-    }
+//     // Check if the assignment exists
+//     if (!assignment) {
+//       return res.status(404).json({ message: "Assignment not found" });
+//     }
 
-    if (!req.file) {
-      return res.status(400).json({ message: "No file uploaded" });
-    }
-    // Save the file data to MongoDB
-    const newFile = new File({
-      orderID: orderID, // Use orderID as token
-      fileName: req.file.originalname,
-      fileType: req.file.mimetype,
-      fileData: req.file.buffer,
-      category: category, // Set the category
-    });
+//     if (!req.file) {
+//       return res.status(400).json({ message: "No file uploaded" });
+//     }
+//     // Save the file data to MongoDB
+//     const newFile = new File({
+//       orderID: orderID, // Use orderID as token
+//       fileName: req.file.originalname,
+//       fileType: req.file.mimetype,
+//       fileData: req.file.buffer,
+//       category: category, // Set the category
+//     });
 
-    await newFile.save();
-    // Add the new file ID to the assignment's `assignmentFile` array
-    assignment.assignmentFile.push(newFile._id);
-    // Save the updated assignment
-    await assignment.save();
+//     await newFile.save();
+//     // Add the new file ID to the assignment's `assignmentFile` array
+//     assignment.assignmentFile.push(newFile._id);
+//     // Save the updated assignment
+//     await assignment.save();
 
-    res
-      .status(201)
-      .json({ message: "File uploaded successfully", fileId: newFile._id });
-  } catch (error) {
-    console.log(error);
-    res
-      .status(500)
-      .json({ message: "Error uploading file", error: error.message });
-  }
-};
+//     res
+//       .status(201)
+//       .json({ message: "File uploaded successfully", fileId: newFile._id });
+//   } catch (error) {
+//     console.log(error);
+//     res
+//       .status(500)
+//       .json({ message: "Error uploading file", error: error.message });
+//   }
+// };
 
 // Controller to handle file download by orderID (as token)
 export const downloadFile = async (req, res) => {
@@ -116,12 +116,13 @@ export const listFiles = async (req, res) => {
 };
 
 // Controller to list all files by order ID
-export const listFilesByOrderID = async (req, res) => {
+export const listFilesByReferenceID = async (req, res) => {
   try {
-    const { orderID } = req.params;
-
-    const files = await File.find({ orderID }, "fileName fileType category createdAt");    
-
+    const { referenceID } = req.params;    
+    const files = await File.find(
+      { referenceID },
+      "fileName fileType fileCategory createdAt uploadedByUserName"
+    );        
     res.json(files || []);
   } catch (error) {
     res

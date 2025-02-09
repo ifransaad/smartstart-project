@@ -1,10 +1,9 @@
 import express from "express";
 import multer from "multer";
 import {
-  deleteFile,
   listFiles,
-  listFilesByOrderID,
   generateShareableLink,
+  listFilesByReferenceID,
 } from "../controllers/files.controller.js";
 import {
   fileUpload,
@@ -21,7 +20,7 @@ router.post("/fileUpload", upload.single("file"), fileUpload);
 router.get("/fileDownload/:fileID", fileDownload);
 
 // Route to get a file list by ID
-router.get("/list/singleFile/:orderID", listFilesByOrderID);
+router.get("/list/singleFile/:referenceID", listFilesByReferenceID);
 
 // Route to delete a file by ID
 router.delete("/delete/:id", fileDelete);

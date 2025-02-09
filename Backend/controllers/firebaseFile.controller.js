@@ -11,12 +11,12 @@ import {
 
 import axios from "axios";
 import Module from "../models/module.models.js";
+import mongoose, { mongo, Mongoose } from "mongoose";
+import ModuleStudentFinance from "../models/moduleStudentFinance.models.js";
 
 const storage = getStorage(app);
 
-export const fileUpload = async (req, res) => {
-  console.log(req.body);
-  
+export const fileUpload = async (req, res) => {  
   try {
     const {
       referenceID,
@@ -66,14 +66,14 @@ export const fileUpload = async (req, res) => {
       } else {
         const assignment = await Assignment.findByIdAndUpdate(
           { _id: referenceID }, // Find the Assignment document by its ID
-          { $push: { assignmentFile: newFile._id } }, // Push new file ID into "assignmentFile" array
+          { $push: { fileList: newFile._id } }, // Push new file ID into "assignmentFile" array
           { new: true } // Return updated document
         );
       }
     } else if (referenceCollection === "Module") {
       const module = await Module.findByIdAndUpdate(
-        {_id: referenceID}, // Find the Assignment document by its ID
-        { $push: { assignmentFile: newFile._id } }, // Push new file ID into "assignmentFile" array
+        { _id: referenceID }, // Find the Module document by its ID
+        { $push: { fileList: newFile._id } }, // Push new file ID into "assignmentFile" array
         { new: true } // Return updated document
       );
     }
@@ -131,13 +131,40 @@ export const fileDelete = async (req, res) => {
     }
     // Find the file by fileName and delete it from Firebase
     const storageRef = ref(storage, deletedFile.fileName);
-    deleteObject(storageRef).then(() => {
-      console.log(`${deletedFile.fileName} deleted from Firebase`)
-    }).catch((error) => {
-      console.log(`Firebase file delete error: `+error.message)
-    });
+    deleteObject(storageRef)
+      .then(() => {
+        console.log(`${deletedFile.fileName} deleted from Firebase`);
+      })
+      .catch((error) => {
+        console.log(`Firebase file delete error: ` + error.message);
+      });
+    const referenceCollection = deletedFile.referenceCollection;
 
-    res.status(200).json({ message: "File deleted successfully" });
+    if (referenceCollection === "Assignment") {
+      await Assignment.updateMany(
+        { fileList: fileId },
+        { $pull: { fileList: fileId } }
+      );
+    } else if (referenceCollection === "Module") {
+        await Module.updateMany(
+          { fileList: fileId },
+          { $pull: { fileList: fileId } }
+      );
+      return res.status(200).json({
+        success: true,
+        message:
+          "File deleted and file references updated successfully",
+        deletedFile,
+      });
+    } else {
+      console.error(
+        `Model for collection "${referenceCollection}" not found.`
+      );
+      return res.status(404).json({
+        success: false,
+        message: `Model for collection "${referenceCollection}" not found.`,
+      });
+    }
   } catch (error) {
     console.log(error);
     res
