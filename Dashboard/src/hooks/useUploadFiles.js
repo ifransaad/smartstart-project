@@ -9,7 +9,6 @@ const useUploadFiles = () => {
   const uploadFiles = async (formData) => {    
     formData.append("uploadedByUserID", userID);
     formData.append("uploadedByUserName", userFullName);
-    formData.append("writerFlag", true);
     try {
       const res = await api.post(
         `/api/files/fileUpload`,

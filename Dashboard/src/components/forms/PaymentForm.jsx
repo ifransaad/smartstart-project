@@ -36,18 +36,20 @@ import useGetPaymentDetails from '../../hooks/useGetPaymentDetails';
 import useSendPaymentData from '../../hooks/useSendPaymentData';
 import { formatDate } from '../../utils/functions';
 import { useAuthContext } from '../../context/AuthContext';
+import FileUpload from '../FileUpload';
+import FileUploadPayment from '../FileUploadPayment';
 
-const PaymentForm = ({ open, setOpen, paymentRequiredInformation }) => {   
-  
+const PaymentForm = ({ open, setOpen, paymentRequiredInformation }) => {     
   const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
+  const colors = tokens(theme.palette.mode);  
   
   const [formSaved, setFormSaved] = useState(false);
   const [formError, setFormError] = useState(false);
   const [formErrorMessage, setFormErrorMessage] = useState('');
   const [formLoading, setformLoading] = useState(false);
+  const [fileUploadModalOpen, setFileUploadModalOpen] = useState(false);
   
-  const { paymentData } = useGetPaymentDetails(paymentRequiredInformation);  
+  const { paymentData, loading, error } = useGetPaymentDetails(paymentRequiredInformation);  
 
   const { updatePayment } = useSendPaymentData();
   
@@ -134,6 +136,18 @@ const PaymentForm = ({ open, setOpen, paymentRequiredInformation }) => {
   const handleSnackbarCloseError = () => {
     setFormError(false);
   };
+
+  if (loading) {    
+      return (
+          <Box mt="200px" sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+              <CircularProgress size={150} sx={{ color: colors.blueAccent[100] }} />
+          </Box>
+      );
+  }
+
+  if (error) {
+      return <div>{error.message}</div>;
+  }
 
   return (
     <Modal open={open} onClose={() => setOpen(false)}>
@@ -254,11 +268,18 @@ const PaymentForm = ({ open, setOpen, paymentRequiredInformation }) => {
                   />
                 </LocalizationProvider>
               </Grid>
-              <Grid item xs={6} display='flex' alignItems='center'>
+              <Grid item xs={6} display="flex" alignItems="center">
                 <Chip
-                  label={paymentDetails.paymentVerificationStatus === "awaiting approval" ? "Pending" : paymentDetails.paymentVerificationStatus === "approved"? "Approved" : "No Status"}
+                  label={
+                    paymentDetails.paymentVerificationStatus ===
+                    "awaiting approval"
+                      ? "Pending"
+                      : paymentDetails.paymentVerificationStatus === "approved"
+                      ? "Approved"
+                      : "No Status"
+                  }
                   sx={{
-                    width: '100%',
+                    width: "100%",
                     borderRadius: 1,
                     mb: 2,
                     backgroundColor:
@@ -278,7 +299,7 @@ const PaymentForm = ({ open, setOpen, paymentRequiredInformation }) => {
                         ? "#000"
                         : "#fff",
                     px: 2, // Padding for better appearance
-                    fontWeight: 'bold',
+                    fontWeight: "bold",
                     fontSize: 14,
                   }}
                 />
@@ -351,6 +372,24 @@ const PaymentForm = ({ open, setOpen, paymentRequiredInformation }) => {
                     sx={{ mb: 2 }}
                   />
                 )}
+              </Grid>
+            </Grid>
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  sx={{
+                    width: "100%",
+                    backgroundColor: colors.greenAccent[500],
+                    "&:hover": {
+                      backgroundColor: colors.greenAccent[600],
+                    },
+                  }}
+                  onClick={() => setFileUploadModalOpen(true)}
+                >
+                  File Upload
+                </Button>
               </Grid>
             </Grid>
           </Box>
@@ -438,6 +477,15 @@ const PaymentForm = ({ open, setOpen, paymentRequiredInformation }) => {
             again.
           </Alert>
         </Snackbar>
+        {fileUploadModalOpen && (
+          <FileUploadPayment
+            setOpen={setFileUploadModalOpen}
+            open={fileUploadModalOpen}
+            moduleIdToPass={paymentRequiredInformation.moduleId}
+            studentIdToPass={paymentRequiredInformation.studentId}
+            isOrder={false}
+          />
+        )}
       </Box>
     </Modal>
   );

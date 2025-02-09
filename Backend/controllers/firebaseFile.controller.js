@@ -23,7 +23,8 @@ export const fileUpload = async (req, res) => {
       fileCategory,
       uploadedByUserID,
       uploadedByUserName,
-      writerFlag
+      writerFlag,
+      paymentFlag
     } = req.body;
     
     const storageRef = ref(storage, req.file.originalname);
@@ -51,6 +52,8 @@ export const fileUpload = async (req, res) => {
       fileName: req.file.originalname,
       fileType: req.file.mimetype,
       fileUrl: downloadURL,
+      ...(writerFlag && { writerFlag }),
+      ...(paymentFlag && { paymentFlag })
     });
 
     await newFile.save();
@@ -187,21 +190,22 @@ export const listFiles = async (req, res) => {
 // Controller to list all files by order ID
 export const listFilesByReferenceID = async (req, res) => {
   try {
-    const { referenceID, isOrder } = req.params;
-    const boolOrder = isOrder.toLowerCase() === "true";    
-    let files;    
-    if (boolOrder) {
-      files = await File.find(
-        { orderID: referenceID },
-        "fileName fileType fileCategory createdAt uploadedByUserName"
+    const { referenceID, isOrder, orderID } = req.body;
+    let files;
+    files = await File.find(
+      { referenceID },
+      "fileName fileType fileCategory createdAt uploadedByUserName writerFlag paymentFlag"
+    );    
+    if (isOrder) {      
+      const writerFiles = await File.find(
+        { orderID: orderID },
+        "fileName fileType fileCategory createdAt uploadedByUserName writerFlag paymentFlag"
       );
-    } else {
-      files = await File.find(
-        { referenceID },
-        "fileName fileType fileCategory createdAt uploadedByUserName"
-      );
+      files = [...files,...writerFiles];
     }
-     
+    console.log(files);
+    
+    
     res.json(files || []);
   } catch (error) {
     res

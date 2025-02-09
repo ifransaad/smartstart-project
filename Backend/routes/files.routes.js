@@ -17,7 +17,7 @@ router.post("/fileUpload", upload.single("file"), fileUpload);
 router.get("/fileDownload/:fileID", fileDownload);
 
 // Route to get a file list by ID
-router.get("/list/singleFile/:referenceID/:isOrder", listFilesByReferenceID);
+router.post("/list/singleFile/getList", listFilesByReferenceID);
 
 // Route to delete a file by ID
 router.delete("/delete/:id", fileDelete);

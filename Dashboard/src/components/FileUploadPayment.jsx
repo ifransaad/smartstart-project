@@ -1,40 +1,54 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
-  Container, Typography, Box, Card, CardContent, IconButton, TableContainer,
-  Table, TableHead, TableCell, TableRow, TableBody, Grid, TextField, useTheme, Modal,
+  Container,
+  Typography,
+  Box,
+  Card,
+  CardContent,
+  IconButton,
+  TableContainer,
+  Table,
+  TableHead,
+  TableCell,
+  TableRow,
+  TableBody,
+  Grid,
+  TextField,
+  useTheme,
+  Modal,
   Select,
   MenuItem,
   FormControl,
-  InputLabel
-} from '@mui/material';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
-import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+  InputLabel,
+} from "@mui/material";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
 import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import DoneIcon from '@mui/icons-material/Done';
-import CloseIcon from '@mui/icons-material/Close';
-import { Controller, useForm } from 'react-hook-form';
-import Paper from '@mui/material/Paper';
-import useUploadFiles from '../hooks/useUploadFiles';
-import useFetchFileList from '../hooks/useFetchFileList';
-import { formatDate } from '../utils/functions';
+import DoneIcon from "@mui/icons-material/Done";
+import CloseIcon from "@mui/icons-material/Close";
+import { Controller, useForm } from "react-hook-form";
+import Paper from "@mui/material/Paper";
+import useUploadFiles from "../hooks/useUploadFiles";
+import useFetchFileList from "../hooks/useFetchFileList";
+import { formatDate } from "../utils/functions";
 
 const customScrollbarStyles = {
-  '&::-webkit-scrollbar': {
-    display: 'none', 
+  "&::-webkit-scrollbar": {
+    display: "none",
   },
-  '-ms-overflow-style': 'none', 
-  'scrollbar-width': 'none', 
+  "-ms-overflow-style": "none",
+  "scrollbar-width": "none",
 };
 
-const FileUpload = ({
+const FileUploadPayment = ({
   referenceID,
   referenceCollection,
   setOpen,
   open,
+  isModule = false,
   isOrder = false,
-  orderID = '',
 }) => {
   const theme = useTheme();
   const [files, setFiles] = useState([]);
@@ -44,8 +58,8 @@ const FileUpload = ({
   const [uploadStatus, setUploadStatus] = useState({});
   const [uploadTimeline, setUploadTimeline] = useState([]);
   const { uploadFiles, downloadFiles, deleteFiles } = useUploadFiles();
-  const { fileList } = useFetchFileList(referenceID, isOrder, orderID);
-  
+  const { fileList } = useFetchFileList(referenceID, isOrder);
+
   const { control } = useForm({});
 
   const navigate = useNavigate();
@@ -88,7 +102,9 @@ const FileUpload = ({
     formData.append("referenceID", referenceID);
     formData.append("fileCategory", category);
     formData.append("referenceCollection", referenceCollection);
+    // formData.append("uploadDateTime", new Date().toISOString());
     formData.append("fileType", file.type);
+    // formData.append("uploadedBy", "UserName");
     try {
       const response = await uploadFiles(formData);
       setUploadStatus((prevStatus) => ({
@@ -456,4 +472,4 @@ const FileUpload = ({
   );
 };
 
-export default FileUpload;
+export default FileUploadPayment;

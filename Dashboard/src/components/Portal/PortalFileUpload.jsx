@@ -29,7 +29,7 @@ const PortalFileUpload = ({orderIDPass, close, main=false, isModule=false}) => {
   const [existingFiles, setExistingFiles] = useState([]);
   const [existingFilteredFiles, setExistingFilteredFiles] = useState([]);
   const { uploadFiles, downloadFiles, deleteFiles } = useUploadFiles();
-  const { fileList } = useFetchFileList(orderID);
+  // const { fileList } = useFetchFileList(orderID, true);
   
   const {
     control,
@@ -37,14 +37,14 @@ const PortalFileUpload = ({orderIDPass, close, main=false, isModule=false}) => {
 
   const navigate = useNavigate(); 
 
-  useEffect(() => {
-    setOrderID(orderIDPass);    
-    if (fileList) {
-      setExistingFiles(fileList);
-      setExistingFilteredFiles(fileList);
-    }
-    // console.log(fileList);
-  }, [orderIDPass, fileList]);
+  // useEffect(() => {
+  //   setOrderID(orderIDPass);    
+  //   if (fileList) {
+  //     setExistingFiles(fileList);
+  //     setExistingFilteredFiles(fileList);
+  //   }
+  //   // console.log(fileList);
+  // }, [orderIDPass, fileList]);
 
   // Handle multiple file changes
   const handleFileChange = (event) => {
@@ -59,6 +59,7 @@ const PortalFileUpload = ({orderIDPass, close, main=false, isModule=false}) => {
     formData.append("orderID", orderID);
     formData.append("referenceCollection", "Assignment");
     formData.append("fileCategory", "assignment");
+    formData.append("writerFlag", true);
     
     try {      
       const response = await uploadFiles(formData);
@@ -69,19 +70,19 @@ const PortalFileUpload = ({orderIDPass, close, main=false, isModule=false}) => {
     }
   };
 
-  const handleView = async (file) => {
-    downloadFiles(file, false);
-  };
+  // const handleView = async (file) => {
+  //   downloadFiles(file, false);
+  // };
 
-  const handleDelete = async (file) => {
-    try {
-      const response = await deleteFiles(file._id);
-      console.log(response.message);
-      navigate(0);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // const handleDelete = async (file) => {
+  //   try {
+  //     const response = await deleteFiles(file._id);
+  //     console.log(response.message);
+  //     navigate(0);
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
   const handleDownload = (file) => {
     const url = URL.createObjectURL(file);
@@ -93,14 +94,14 @@ const PortalFileUpload = ({orderIDPass, close, main=false, isModule=false}) => {
     document.body.removeChild(a);
   };
 
-  const handleCategoryChange = (category) => {
-    const filteredFiles = existingFiles.filter(
-      (file) => file.category === category
-    );
-    // console.log(filteredFiles);
+  // const handleCategoryChange = (category) => {
+  //   const filteredFiles = existingFiles.filter(
+  //     (file) => file.category === category
+  //   );
+  //   // console.log(filteredFiles);
 
-    setExistingFilteredFiles(filteredFiles);
-  };
+  //   setExistingFilteredFiles(filteredFiles);
+  // };
   return (
     <Card raised style={{ padding: "20px", borderRadius: "10px" }}>
       <IconButton
@@ -204,7 +205,7 @@ const PortalFileUpload = ({orderIDPass, close, main=false, isModule=false}) => {
           </TableContainer>
         )}
 
-        {main && !isModule && (
+        {/* {main && !isModule && (
           <Grid container spacing={2} mt={3}>
             <Grid item xs={4}>
               <Typography
@@ -293,7 +294,7 @@ const PortalFileUpload = ({orderIDPass, close, main=false, isModule=false}) => {
               </Table>
             </TableContainer>
           </Box>
-        )}
+        )} */}
       </CardContent>
     </Card>
   );

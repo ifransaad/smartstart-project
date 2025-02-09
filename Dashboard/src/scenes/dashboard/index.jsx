@@ -6,6 +6,7 @@ import { yearFilter } from "../../utils/yearFilter";
 import { useAuthContext } from "../../context/AuthContext";
 import useFetchAgentFilteredDegreeData from "../../hooks/useFetchAgentFilteredDegreeData";
 import SuperAdminCharts from "../../components/profilePages/SuperAdminCharts.jsx";
+import { sortByProperty } from "../../utils/functions.js";
 
 const Dashboard = () => {
   const { authUser, isSuperAdmin } = useAuthContext();
@@ -23,11 +24,12 @@ const Dashboard = () => {
   const lastTenYears = Array.from({ length: 10 }, (_, i) => currentYear - i);
 
   // Filter Degrees Based on Intake and Year
-  const filteredYearList = yearList.filter((year) => {
+  let filteredYearList = yearList.filter((year) => {
     const intakeMatch = selectedIntake ? year.yearName.startsWith(selectedIntake) : true;
     const yearMatch = selectedYear ? year.yearName.endsWith(selectedYear) : true;
     return intakeMatch && yearMatch;
   });
+  filteredYearList = sortByProperty(filteredYearList, "year_id", "dsc");  
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error loading data...</div>;

@@ -4,6 +4,7 @@ import Header from "../../components/Header";
 import useFetchAllDegreeData from "../../hooks/useFetchAllDegreeData";
 import TaskCard from "../../components/TaskCard";
 import { yearFilter } from "../../utils/yearFilter";
+import { sortByProperty } from "../../utils/functions";
 
 const AllDegree = () => {
   const { degree, error, loading } = useFetchAllDegreeData();
@@ -18,11 +19,12 @@ const AllDegree = () => {
   const currentYear = new Date().getFullYear();
   const lastTenYears = Array.from({ length: 10 }, (_, i) => currentYear - i);
   
-  const filteredYearList = yearList.filter((year) => {
+  let filteredYearList = yearList.filter((year) => {
     const intakeMatch = selectedIntake ? year.yearName.startsWith(selectedIntake) : true;
     const yearMatch = selectedYear ? year.yearName.endsWith(selectedYear) : true;
     return intakeMatch && yearMatch;
   });
+  filteredYearList = sortByProperty(filteredYearList, "year_id", "dsc");  
 
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error loading data...</div>;

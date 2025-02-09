@@ -29,6 +29,16 @@ const fileSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    writerFlag: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
+    paymentFlag: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
     uploadedByUserID: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "users",
