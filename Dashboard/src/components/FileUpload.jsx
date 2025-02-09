@@ -28,7 +28,7 @@ const customScrollbarStyles = {
   'scrollbar-width': 'none', 
 };
 
-const FileUpload = ({ referenceID, referenceCollection, setOpen, open, isModule=false }) => {    
+const FileUpload = ({ referenceID, referenceCollection, setOpen, open, isModule=false, isOrder=false }) => {    
   const theme = useTheme();
   const [files, setFiles] = useState([]);
   const [existingFiles, setExistingFiles] = useState([]);
@@ -37,7 +37,7 @@ const FileUpload = ({ referenceID, referenceCollection, setOpen, open, isModule=
   const [uploadStatus, setUploadStatus] = useState({});
   const [uploadTimeline, setUploadTimeline] = useState([]);
   const { uploadFiles, downloadFiles, deleteFiles } = useUploadFiles();
-  const { fileList } = useFetchFileList(referenceID);
+  const { fileList } = useFetchFileList(referenceID, isOrder);
 
   const { control } = useForm({});
 

@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react'
 import useApi from './useApi';
 
-const useFetchFileList = (referenceID) => {  
+const useFetchFileList = (referenceID, isOrder) => {  
     const api = useApi()
     const [fileList, setFileList] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-      const fetchFileList = async (referenceID) => {
+      const fetchFileList = async (referenceID, isOrder) => {
         try {
-          const res = await api.get(`/api/files/list/singleFile/${referenceID}`);
+          const res = await api.get(`/api/files/list/singleFile/${referenceID}/${isOrder}`);
 
           setFileList(res.data); // Update state with the degree data
           setLoading(false); // Mark as not loading anymore
@@ -21,8 +21,8 @@ const useFetchFileList = (referenceID) => {
         }
       };
 
-      fetchFileList(referenceID); // Call the async function within useEffect
-    }, [referenceID]);
+      fetchFileList(referenceID, isOrder); // Call the async function within useEffect
+    }, [referenceID, isOrder]);
 
   return {fileList, loading, error}
 }

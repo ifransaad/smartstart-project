@@ -344,7 +344,7 @@ const AssignmentList = ({ list, degreeModules, student }) => {
         </Box>
       )}
       {open && (
-        <FileUpload setOpen={setOpen} open={open} orderID={orderIdToPass} />
+        <FileUpload setOpen={setOpen} open={open} referenceID={orderIdToPass} isOrder={true} />
       )}
       {paymentOpen && (
         <PaymentForm setOpen={setPaymentOpen} open={paymentOpen} paymentRequiredInformation = {paymentRequiredInformation} />

@@ -11,8 +11,6 @@ import {
 
 import axios from "axios";
 import Module from "../models/module.models.js";
-import mongoose, { mongo, Mongoose } from "mongoose";
-import ModuleStudentFinance from "../models/moduleStudentFinance.models.js";
 
 const storage = getStorage(app);
 
@@ -27,6 +25,7 @@ export const fileUpload = async (req, res) => {
       uploadedByUserName,
       writerFlag
     } = req.body;
+    
     const storageRef = ref(storage, req.file.originalname);
 
     const metadata = {
@@ -60,7 +59,7 @@ export const fileUpload = async (req, res) => {
       if (writerFlag) {
         // Add the new file ID to the assignment's `assignmentFile` array
         const assignment = await Assignment.findOne({ orderID }); // Find the Assignment document by its ID);
-        assignment.assignmentFile.push(newFile._id);
+        assignment.fileList.push(newFile._id);
         // Save the updated assignment
         await assignment.save();
       } else {
@@ -170,5 +169,43 @@ export const fileDelete = async (req, res) => {
     res
       .status(500)
       .json({ message: "Error deleting file", error: error.message });
+  }
+};
+
+// Controller to list all files
+export const listFiles = async (req, res) => {
+  try {
+    const files = await File.find({}, "fileName fileType createdAt");
+    res.json({ files });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error listing files", error: error.message });
+  }
+};
+
+// Controller to list all files by order ID
+export const listFilesByReferenceID = async (req, res) => {
+  try {
+    const { referenceID, isOrder } = req.params;
+    const boolOrder = isOrder.toLowerCase() === "true";    
+    let files;    
+    if (boolOrder) {
+      files = await File.find(
+        { orderID: referenceID },
+        "fileName fileType fileCategory createdAt uploadedByUserName"
+      );
+    } else {
+      files = await File.find(
+        { referenceID },
+        "fileName fileType fileCategory createdAt uploadedByUserName"
+      );
+    }
+     
+    res.json(files || []);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error listing files", error: error.message });
   }
 };
