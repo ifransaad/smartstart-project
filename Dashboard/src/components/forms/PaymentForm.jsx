@@ -38,18 +38,25 @@ import { formatDate } from '../../utils/functions';
 import { useAuthContext } from '../../context/AuthContext';
 import FileUpload from '../FileUpload';
 import FileUploadPayment from '../FileUploadPayment';
+import useFetchModuleAssignmentData from '../../hooks/useFetchModuleAssignmentData';
 
 const PaymentForm = ({ open, setOpen, paymentRequiredInformation }) => {     
   const theme = useTheme();
-  const colors = tokens(theme.palette.mode);  
+  const colors = tokens(theme.palette.mode);    
   
   const [formSaved, setFormSaved] = useState(false);
   const [formError, setFormError] = useState(false);
   const [formErrorMessage, setFormErrorMessage] = useState('');
   const [formLoading, setformLoading] = useState(false);
   const [fileUploadModalOpen, setFileUploadModalOpen] = useState(false);
+
+  const [referenceIdToPass, setreferenceIdToPass] = useState("");
   
-  const { paymentData, loading, error } = useGetPaymentDetails(paymentRequiredInformation);  
+  const { paymentData, loading, error } = useGetPaymentDetails(paymentRequiredInformation);
+  const { moduleAssignmentData } = useFetchModuleAssignmentData(
+    paymentRequiredInformation.studentID,
+    paymentRequiredInformation.moduleId
+  );  
 
   const { updatePayment } = useSendPaymentData();
   
@@ -86,6 +93,12 @@ const PaymentForm = ({ open, setOpen, paymentRequiredInformation }) => {
         });
       }
     }, [paymentData]);
+
+    useEffect(() => {
+      if (moduleAssignmentData) {
+        setreferenceIdToPass(moduleAssignmentData._id);        
+      }
+    }, [moduleAssignmentData]);
 
   const handleChange = (field, value) => {
     
@@ -478,12 +491,12 @@ const PaymentForm = ({ open, setOpen, paymentRequiredInformation }) => {
           </Alert>
         </Snackbar>
         {fileUploadModalOpen && (
-          <FileUploadPayment
-            setOpen={setFileUploadModalOpen}
-            open={fileUploadModalOpen}
-            moduleIdToPass={paymentRequiredInformation.moduleId}
-            studentIdToPass={paymentRequiredInformation.studentId}
-            isOrder={false}
+          <FileUpload
+            setOpen={setOpen}
+            open={open}
+            referenceID={referenceIdToPass}
+            referenceCollection={"ModuleAssignment"}
+            isPayment={true}
           />
         )}
       </Box>

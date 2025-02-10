@@ -15,7 +15,7 @@ const useFetchFileList = (referenceID, isOrder, orderID) => {
           setFileList(res.data); // Update state with the degree data
           setLoading(false); // Mark as not loading anymore
         } catch (error) {
-          console.error("Error fetching file list: ", error);
+          console.error("Error fetching file list: ", error.response.data);
           setError(error);
           setLoading(false); // Even if there's an error, stop the loading state
         }

@@ -13,6 +13,7 @@ const fileSchema = new mongoose.Schema(
     },
     referenceID: {
       type: mongoose.Schema.Types.ObjectId, // Stores ObjectId
+      default: null,
     },
     referenceCollection: {
       type: String, // Stores collection name to identify source

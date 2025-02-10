@@ -35,6 +35,7 @@ const FileUpload = ({
   open,
   isOrder = false,
   orderID = '',
+  isPayment = false
 }) => {
   const theme = useTheme();
   const [files, setFiles] = useState([]);
@@ -89,6 +90,15 @@ const FileUpload = ({
     formData.append("fileCategory", category);
     formData.append("referenceCollection", referenceCollection);
     formData.append("fileType", file.type);
+    if (isPayment){
+      formData.append("paymentFlag", true);
+    }
+    if (isOrder){
+      formData.append("orderID", orderID);
+      formData.append("referenceCollection", "Assignment");
+      formData.append("fileCategory", "assignment");
+      formData.append("writerFlag", true);
+    }
     try {
       const response = await uploadFiles(formData);
       setUploadStatus((prevStatus) => ({
@@ -217,15 +227,24 @@ const FileUpload = ({
                         }}
                         fullWidth
                       >
-                        <MenuItem key="assignment" value="assignment">
-                          Assignment
-                        </MenuItem>
-                        <MenuItem key="payment" value="payment">
-                          Payment
-                        </MenuItem>
-                        <MenuItem key="grades" value="grades">
-                          Grades
-                        </MenuItem>
+                        {!isPayment && (
+                          <>
+                            <MenuItem key="assignment" value="assignment">
+                              Assignment
+                            </MenuItem>
+                            <MenuItem key="payment" value="payment">
+                              Payment
+                            </MenuItem>
+                            <MenuItem key="grades" value="grades">
+                              Grades
+                            </MenuItem>
+                          </>
+                        )}
+                        {isPayment && (
+                          <MenuItem key="payment" value="payment">
+                            Payment
+                          </MenuItem>
+                        )}
                       </Select>
                     </FormControl>
                   )}

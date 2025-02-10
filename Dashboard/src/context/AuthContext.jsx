@@ -27,8 +27,10 @@ export const AuthContextProvider = ({ children }) => {
     if (userRole === "superAdmin") {
       setIsSuperAdmin(true);
       setIsAdmin(true);
+      setIsFinance(true);
     } else if (userRole === "admin") {
       setIsAdmin(true);
+      setIsFinance(true);
     } else if (userRole === "finance") {
       setIsFinance(true);
     } else if (userRole === "edu" || userRole === "pen") {

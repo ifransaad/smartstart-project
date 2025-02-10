@@ -169,4 +169,24 @@ export const getAssignmentForModule = async (studentID, moduleID) => {
   }
 };
 
+export const getModuleAssignmentData = async (req, res) => {
+  const { studentID, moduleID } = req.params;  
+  try {
+    // Find the module assignment by moduleID and studentID
+    const moduleAssignment = await ModuleAssignment.findOne({
+      moduleID: moduleID,
+      studentID: studentID,
+    }, "_id");    
+    if (moduleAssignment) {      
+      res.status(200).json(moduleAssignment);
+    } else {
+      res.status(404).json({ error: "No module found for the provided student and module" });
+    }
+  } catch (error) {
+    console.error("Error fetching moduleAssignmentData:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+  
+}
+
 

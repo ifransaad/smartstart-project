@@ -146,7 +146,7 @@ const Sidebar = () => {
                 selected={selected}
                 setSelected={setSelected}
               />
-              {!isFinance && (
+              {!isFinance || isAdmin && (
                 <Item
                   title="Add Degree"
                   to="/add-degree"
@@ -162,7 +162,7 @@ const Sidebar = () => {
                 selected={selected}
                 setSelected={setSelected}
               />
-              {!isFinance && (
+              {!isFinance || isAdmin && (
                 <Item
                   title="All Orders"
                   to="/allOrders"

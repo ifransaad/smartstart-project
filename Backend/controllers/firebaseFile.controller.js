@@ -11,6 +11,7 @@ import {
 
 import axios from "axios";
 import Module from "../models/module.models.js";
+import ModuleAssignment from "../models/moduleAssignment.models.js";
 
 const storage = getStorage(app);
 
@@ -74,6 +75,12 @@ export const fileUpload = async (req, res) => {
       }
     } else if (referenceCollection === "Module") {
       const module = await Module.findByIdAndUpdate(
+        { _id: referenceID }, // Find the Module document by its ID
+        { $push: { fileList: newFile._id } }, // Push new file ID into "assignmentFile" array
+        { new: true } // Return updated document
+      );
+    } else if (referenceCollection === "ModuleAssignment") {
+      const moduleAssignment = await ModuleAssignment.findByIdAndUpdate(
         { _id: referenceID }, // Find the Module document by its ID
         { $push: { fileList: newFile._id } }, // Push new file ID into "assignmentFile" array
         { new: true } // Return updated document
@@ -148,20 +155,27 @@ export const fileDelete = async (req, res) => {
         { $pull: { fileList: fileId } }
       );
     } else if (referenceCollection === "Module") {
-        await Module.updateMany(
-          { fileList: fileId },
-          { $pull: { fileList: fileId } }
+      await Module.updateMany(
+        { fileList: fileId },
+        { $pull: { fileList: fileId } }
       );
       return res.status(200).json({
         success: true,
-        message:
-          "File deleted and file references updated successfully",
+        message: "File deleted and file references updated successfully",
+        deletedFile,
+      });
+    } else if (referenceCollection === "ModuleAssignment") {
+      await ModuleAssignment.updateMany(
+        { fileList: fileId },
+        { $pull: { fileList: fileId } }
+      );
+      return res.status(200).json({
+        success: true,
+        message: "File deleted and file references updated successfully",
         deletedFile,
       });
     } else {
-      console.error(
-        `Model for collection "${referenceCollection}" not found.`
-      );
+      console.error(`Model for collection "${referenceCollection}" not found.`);
       return res.status(404).json({
         success: false,
         message: `Model for collection "${referenceCollection}" not found.`,
@@ -190,12 +204,16 @@ export const listFiles = async (req, res) => {
 // Controller to list all files by order ID
 export const listFilesByReferenceID = async (req, res) => {
   try {
-    const { referenceID, isOrder, orderID } = req.body;
+    const { referenceID, isOrder, orderID } = req.body;    
     let files;
+    
+    if (!referenceID) {
+      return res.status(400).json({ message: "Reference ID is required" });
+    }
     files = await File.find(
       { referenceID },
       "fileName fileType fileCategory createdAt uploadedByUserName writerFlag paymentFlag"
-    );    
+    );        
     if (isOrder) {      
       const writerFiles = await File.find(
         { orderID: orderID },
@@ -203,9 +221,6 @@ export const listFilesByReferenceID = async (req, res) => {
       );
       files = [...files,...writerFiles];
     }
-    console.log(files);
-    
-    
     res.json(files || []);
   } catch (error) {
     res

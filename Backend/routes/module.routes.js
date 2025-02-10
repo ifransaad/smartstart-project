@@ -1,5 +1,5 @@
 import express from "express"
-import {getAssignment, getModuleData} from '../controllers/module.controller.js'
+import {getAssignment, getModuleAssignmentData, getModuleData} from '../controllers/module.controller.js'
 const router = express.Router();
 import {authenticate} from '../middlewares/protect.js'
 import { deleteAssignment, newAssignmentManual, updateAssignment } from "../controllers/assignment.controller.js";
@@ -12,6 +12,7 @@ router.get("/getAssignment/:moduleID/:studentID",getAssignment);
 router.get("/getModuleData/:degreeID/:moduleID", getModuleData);
 router.get("/getPaymentData/all", getPaymentDetailsAll);
 router.post("/getPaymentData", getPaymentDetails);
+router.get("/getModuleAssignmentData/:studentID/:moduleID", getModuleAssignmentData);
 router.post("/updatePaymentData", updatePaymentDetails);
 router.post("/updatePaymentStatus", updatePaymentStatus);
 router.delete('/deleteAssignment/:assignmentID', deleteAssignment)

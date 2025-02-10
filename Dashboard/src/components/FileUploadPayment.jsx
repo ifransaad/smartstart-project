@@ -21,6 +21,7 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
+  CircularProgress,
 } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import CloudDownloadIcon from "@mui/icons-material/CloudDownload";
@@ -33,6 +34,7 @@ import Paper from "@mui/material/Paper";
 import useUploadFiles from "../hooks/useUploadFiles";
 import useFetchFileList from "../hooks/useFetchFileList";
 import { formatDate } from "../utils/functions";
+import useFetchModuleAssignmentData from "../hooks/useFetchModuleAssignmentData";
 
 const customScrollbarStyles = {
   "&::-webkit-scrollbar": {
@@ -47,8 +49,9 @@ const FileUploadPayment = ({
   referenceCollection,
   setOpen,
   open,
-  isModule = false,
   isOrder = false,
+  orderID = "",
+  isPayment=true
 }) => {
   const theme = useTheme();
   const [files, setFiles] = useState([]);
@@ -58,7 +61,7 @@ const FileUploadPayment = ({
   const [uploadStatus, setUploadStatus] = useState({});
   const [uploadTimeline, setUploadTimeline] = useState([]);
   const { uploadFiles, downloadFiles, deleteFiles } = useUploadFiles();
-  const { fileList } = useFetchFileList(referenceID, isOrder);
+  const { fileList } = useFetchFileList(referenceID, isOrder, orderID); 
 
   const { control } = useForm({});
 
@@ -102,9 +105,7 @@ const FileUploadPayment = ({
     formData.append("referenceID", referenceID);
     formData.append("fileCategory", category);
     formData.append("referenceCollection", referenceCollection);
-    // formData.append("uploadDateTime", new Date().toISOString());
     formData.append("fileType", file.type);
-    // formData.append("uploadedBy", "UserName");
     try {
       const response = await uploadFiles(formData);
       setUploadStatus((prevStatus) => ({
